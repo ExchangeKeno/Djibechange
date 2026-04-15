@@ -18,4 +18,6 @@ urlpatterns = [
     path('dashboard/requests/', views.dashboard_requests, name='dashboard_requests'),
     path('dashboard/requests/<int:pk>/', views.dashboard_request_detail, name='dashboard_request_detail'),
     path('dashboard/requests/<int:pk>/status/', views.dashboard_update_status, name='dashboard_update_status'),
+    path('dashboard/history/sent/', views.dashboard_history_sent, name='dashboard_history_sent'),
+    path('dashboard/history/rejected/', views.dashboard_history_rejected, name='dashboard_history_rejected'),
 ]

@@ -1,0 +1,100 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Historique Refusées — DJIB Exchange Admin{% endblock %}
+{% block nav_rejected %}active{% endblock %}
+
+{% block dashboard_content %}
+<div class="dash-header">
+  <div>
+    <h1>Historique <span class="gradient-text">Refusées</span></h1>
+    <p>{{ requests.count }} demande{{ requests.count|pluralize }} refusée{{ requests.count|pluralize }} au total</p>
+  </div>
+</div>
+
+<!-- Filtres -->
+<form method="get" style="margin-bottom:24px;">
+  <div class="filters-bar">
+    <input type="text" name="q" class="search-input" placeholder="Rechercher par MoneyGo ID, email, WhatsApp..." value="{{ search }}">
+    <select name="wallet" class="filter-select" onchange="this.form.submit()">
+      <option value="">Tous les wallets</option>
+      {% for key, info in wallets.items %}
+      <option value="{{ key }}" {% if wallet_filter == key %}selected{% endif %}>{{ info.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
+    {% if search or wallet_filter %}
+    <a href="{% url 'dashboard_history_rejected' %}" class="btn btn-outline btn-sm">Effacer</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="table-wrapper">
+  <!-- Bandeau résumé -->
+  <div style="padding:16px 24px;background:rgba(239,68,68,0.06);border-bottom:1px solid rgba(239,68,68,0.15);display:flex;align-items:center;gap:12px;">
+    <span style="font-size:1.2rem;">❌</span>
+    <span style="font-size:0.88rem;color:#fca5a5;font-weight:600;">{{ requests.count }} demande{{ requests.count|pluralize }} refusée{{ requests.count|pluralize }}</span>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Réf.</th>
+          <th>Wallet</th>
+          <th>Montant</th>
+          <th>MoneyGo Wallet</th>
+          <th>Email / WhatsApp</th>
+          <th>Date refus</th>
+          <th>Raison du refus</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests %}
+        <tr>
+          <td><span class="ref-code">{{ req.short_ref }}</span></td>
+          <td>
+            <span class="wallet-chip">
+              <span class="wallet-dot" style="
+                {% if req.wallet == 'waafi' %}background:#1a73e8
+                {% elif req.wallet == 'cac' %}background:#c8a93b
+                {% elif req.wallet == 'dmoney' %}background:#f5a623
+                {% else %}background:#00897b{% endif %}
+              "></span>
+              {{ req.get_wallet_display }}
+            </span>
+          </td>
+          <td style="font-weight:700;">{{ req.amount_sent }} DJF</td>
+          <td style="font-size:0.83rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ req.moneygo_wallet }}">{{ req.moneygo_wallet }}</td>
+          <td style="font-size:0.78rem;">
+            <div>{{ req.email }}</div>
+            <div style="color:var(--text-muted);">{{ req.whatsapp_number }}</div>
+          </td>
+          <td style="color:var(--danger);font-size:0.78rem;white-space:nowrap;">
+            <div style="font-weight:600;">{{ req.updated_at|date:"d M Y" }}</div>
+            <div style="color:var(--text-muted);">{{ req.updated_at|date:"H:i" }}</div>
+          </td>
+          <td style="font-size:0.82rem;max-width:200px;">
+            {% if req.admin_note %}
+            <span style="color:var(--text-muted);">{{ req.admin_note }}</span>
+            {% else %}
+            <span style="color:var(--text-muted);opacity:0.4;font-style:italic;">Aucune raison indiquée</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'dashboard_request_detail' req.pk %}" class="btn btn-outline btn-sm">Détail</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align:center;color:var(--text-muted);padding:60px;">
+            <div style="font-size:2rem;margin-bottom:12px;">🎉</div>
+            Aucune demande refusée.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

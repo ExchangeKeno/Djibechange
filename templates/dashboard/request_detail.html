@@ -1,35 +1,76 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}Request #{{ exchange.short_ref }} — DJIB Exchange Admin{% endblock %}
+{% block title %}Demande #{{ exchange.short_ref }} — DJIB Exchange Admin{% endblock %}
 
 {% block dashboard_content %}
+<style>
+  .detail-action-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .btn-action-send {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 800;
+    border: 1px solid rgba(16,185,129,0.35); background: rgba(16,185,129,0.12);
+    color: #34d399; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-action-send:hover:not(:disabled) { background: rgba(16,185,129,0.22); box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+  .btn-action-send:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-action-reject {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 800;
+    border: 1px solid rgba(239,68,68,0.35); background: rgba(239,68,68,0.1);
+    color: #f87171; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-action-reject:hover:not(:disabled) { background: rgba(239,68,68,0.2); box-shadow: 0 0 20px rgba(239,68,68,0.2); }
+  .btn-action-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-done-banner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 20px; border-radius: 14px; font-weight: 700; font-size: 1rem;
+    margin-bottom: 16px;
+  }
+  .status-done-banner.completed {
+    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399;
+  }
+  .status-done-banner.rejected {
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #f87171;
+  }
+  .status-done-banner.processing {
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.25); color: var(--primary);
+  }
+</style>
+
+<!-- Header -->
 <div class="dash-header">
   <div>
     <div class="breadcrumb" style="margin-bottom:8px;">
-      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'dashboard' %}">Tableau de bord</a>
       <span class="sep">/</span>
-      <a href="{% url 'dashboard_requests' %}">Requests</a>
+      <a href="{% url 'dashboard_requests' %}">Demandes</a>
       <span class="sep">/</span>
       <span class="ref-code">{{ exchange.short_ref }}</span>
     </div>
-    <h1>Request <span class="gradient-text">#{{ exchange.short_ref }}</span></h1>
-    <p>Submitted {{ exchange.created_at|date:"d M Y" }} at {{ exchange.created_at|date:"H:i" }}</p>
+    <h1>Demande <span class="gradient-text">#{{ exchange.short_ref }}</span></h1>
+    <p>Soumise le {{ exchange.created_at|date:"d M Y" }} à {{ exchange.created_at|date:"H:i" }}</p>
   </div>
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
     <span class="badge {{ exchange.status_badge_class }}" style="font-size:0.88rem;padding:8px 16px;">{{ exchange.get_status_display }}</span>
-    <a href="{% url 'dashboard_requests' %}" class="btn btn-outline btn-sm">← Back</a>
+    <a href="{% url 'dashboard_requests' %}" class="btn btn-outline btn-sm">← Retour</a>
   </div>
 </div>
 
 <div class="detail-grid">
 
-  <!-- Left column -->
+  <!-- Colonne gauche : infos -->
   <div style="display:flex;flex-direction:column;gap:20px;">
 
-    <!-- Transaction info -->
+    <!-- Détails transaction -->
     <div class="card">
-      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Transaction Details</h3>
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Détails de la transaction</h3>
       <div class="detail-field">
-        <div class="field-label">Payment Method</div>
+        <div class="field-label">Mode de paiement</div>
         <div class="field-value">
           <span class="wallet-chip" style="display:inline-flex;">
             <span class="wallet-dot" style="{% if exchange.wallet == 'waafi' %}background:#1a73e8{% elif exchange.wallet == 'cac' %}background:#c8a93b{% elif exchange.wallet == 'dmoney' %}background:#f5a623{% else %}background:#00897b{% endif %}"></span>
@@ -38,102 +79,175 @@
         </div>
       </div>
       <div class="detail-field">
-        <div class="field-label">Amount Sent</div>
-        <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--text);">{{ exchange.amount_sent }}</div>
+        <div class="field-label">Montant envoyé</div>
+        <div class="field-value" style="font-size:1.4rem;font-weight:800;color:var(--text);">{{ exchange.amount_sent }} DJF</div>
       </div>
       <div class="detail-field">
-        <div class="field-label">To Receive (MoneyGo USD)</div>
-        <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--success);">{{ exchange.amount_to_receive }} USD</div>
+        <div class="field-label">À recevoir (MoneyGo USD)</div>
+        <div class="field-value" style="font-size:1.4rem;font-weight:800;color:var(--success);">{{ exchange.amount_to_receive }} USD</div>
       </div>
       <div class="detail-field">
         <div class="field-label">MoneyGo Wallet ID</div>
         <div class="field-value" style="color:var(--primary);font-family:monospace;font-size:1rem;">
           {{ exchange.moneygo_wallet }}
-          <button class="copy-btn" data-copy="{{ exchange.moneygo_wallet }}" style="margin-left:8px;">Copy</button>
+          <button class="copy-btn" data-copy="{{ exchange.moneygo_wallet }}" style="margin-left:8px;">Copier</button>
         </div>
       </div>
     </div>
 
-    <!-- User info -->
+    <!-- Infos client -->
     <div class="card">
-      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">User Information</h3>
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Informations client</h3>
       <div class="detail-field">
-        <div class="field-label">WhatsApp Number</div>
+        <div class="field-label">Numéro WhatsApp</div>
         <div class="field-value">
           {{ exchange.whatsapp_number }}
-          <button class="copy-btn" data-copy="{{ exchange.whatsapp_number }}" style="margin-left:8px;">Copy</button>
+          <button class="copy-btn" data-copy="{{ exchange.whatsapp_number }}" style="margin-left:8px;">Copier</button>
         </div>
       </div>
       <div class="detail-field">
-        <div class="field-label">Email Address</div>
+        <div class="field-label">Email</div>
         <div class="field-value">{{ exchange.email }}</div>
       </div>
       <div class="detail-field">
-        <div class="field-label">Reference ID</div>
-        <div class="field-value" style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);">{{ exchange.reference_id }}</div>
+        <div class="field-label">ID de référence</div>
+        <div class="field-value" style="font-family:monospace;font-size:0.82rem;color:var(--text-muted);">{{ exchange.reference_id }}</div>
       </div>
       <div class="detail-field">
-        <div class="field-label">Last Updated</div>
+        <div class="field-label">Dernière mise à jour</div>
         <div class="field-value" style="color:var(--text-muted);">{{ exchange.updated_at|date:"d M Y, H:i" }}</div>
       </div>
     </div>
 
+    {% if exchange.admin_note %}
+    <div class="card" style="border-color:{% if exchange.status == 'rejected' %}rgba(239,68,68,0.3){% else %}rgba(16,185,129,0.3){% endif %};">
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Note admin</h3>
+      <p style="font-size:0.88rem;line-height:1.6;">{{ exchange.admin_note }}</p>
+    </div>
+    {% endif %}
+
     <!-- Screenshot -->
     <div class="card">
-      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;">Transaction Screenshot</h3>
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;">Capture d'écran</h3>
       {% if exchange.screenshot %}
       <div class="screenshot-viewer" data-lightbox="{{ exchange.screenshot.url }}">
         <img src="{{ exchange.screenshot.url }}" alt="Transaction screenshot">
         <div style="padding:10px 16px;font-size:0.78rem;color:var(--text-muted);background:rgba(0,0,0,0.3);">
-          🔍 Click to enlarge
+          Cliquer pour agrandir
         </div>
       </div>
       <a href="{{ exchange.screenshot.url }}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:12px;">
-        Open Full Image ↗
+        Ouvrir en plein écran ↗
       </a>
       {% else %}
       <div style="padding:40px;text-align:center;border:2px dashed var(--border);border-radius:10px;color:var(--text-muted);">
-        No screenshot uploaded
+        Aucune capture d'écran
       </div>
       {% endif %}
     </div>
 
   </div>
 
-  <!-- Right column: Update Status -->
+  <!-- Colonne droite : actions -->
   <div>
-    <div class="card" style="position:sticky;top:24px;">
-      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Update Status</h3>
+    <div style="position:sticky;top:24px;display:flex;flex-direction:column;gap:16px;">
 
-      <form method="post" class="status-form">
-        {% csrf_token %}
-        <div style="margin-bottom:14px;">
-          <label class="form-label">New Status</label>
-          <select name="status">
-            {% for val, label in status_choices %}
-            <option value="{{ val }}" {% if exchange.status == val %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
+      <!-- Zone d'action principale -->
+      <div class="card">
+        <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">
+          Action sur la demande
+        </h3>
+
+        {% if exchange.status == 'completed' %}
+        <div class="status-done-banner completed">
+          <span style="font-size:1.5rem;">✅</span>
+          <div>
+            <div>Paiement envoyé</div>
+            <div style="font-size:0.75rem;font-weight:400;opacity:0.8;">{{ exchange.updated_at|date:"d M Y, H:i" }}</div>
+          </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label class="form-label">Admin Note (optional)</label>
-          <textarea name="admin_note" placeholder="Add a note for this request (visible to user when tracking)...">{{ exchange.admin_note }}</textarea>
+        {% elif exchange.status == 'rejected' %}
+        <div class="status-done-banner rejected">
+          <span style="font-size:1.5rem;">❌</span>
+          <div>
+            <div>Demande refusée</div>
+            <div style="font-size:0.75rem;font-weight:400;opacity:0.8;">{{ exchange.updated_at|date:"d M Y, H:i" }}</div>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Update Status</button>
-      </form>
+        {% elif exchange.status == 'processing' %}
+        <div class="status-done-banner processing">
+          <span style="font-size:1.5rem;">⚡</span>
+          <div>
+            <div>En cours de traitement</div>
+            <div style="font-size:0.75rem;font-weight:400;opacity:0.8;">Mise à jour : {{ exchange.updated_at|date:"d M Y, H:i" }}</div>
+          </div>
+        </div>
+        {% endif %}
 
-      <div class="divider"></div>
+        {% if exchange.status != 'completed' and exchange.status != 'rejected' %}
+        <div class="detail-action-bar">
+          <button class="btn-action-send" data-action-btn data-pk="{{ exchange.pk }}" data-status="completed">
+            <span style="font-size:1.3rem;">✅</span>
+            <div style="text-align:left;">
+              <div>Marquer Envoyé</div>
+              <div style="font-size:0.7rem;font-weight:400;opacity:0.8;">USD envoyés au client</div>
+            </div>
+          </button>
+          <button class="btn-action-reject" data-action-btn data-pk="{{ exchange.pk }}" data-status="rejected">
+            <span style="font-size:1.3rem;">✕</span>
+            <div style="text-align:left;">
+              <div>Refuser</div>
+              <div style="font-size:0.7rem;font-weight:400;opacity:0.8;">Annuler la demande</div>
+            </div>
+          </button>
+        </div>
+        {% endif %}
 
-      <!-- Status guide -->
-      <div style="font-size:0.8rem;color:var(--text-muted);">
-        <div style="margin-bottom:8px;font-weight:600;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;">Status Guide</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-pending" style="font-size:0.7rem;">Pending</span> Awaiting review</div>
-          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-processing" style="font-size:0.7rem;">Processing</span> Sending MoneyGo USD</div>
-          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-completed" style="font-size:0.7rem;">Completed</span> USD sent successfully</div>
-          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-rejected" style="font-size:0.7rem;">Rejected</span> Request declined</div>
+        <!-- Mise à jour manuelle (avancé) -->
+        <details style="margin-top:16px;">
+          <summary style="font-size:0.78rem;color:var(--text-muted);cursor:pointer;user-select:none;">Mise à jour manuelle avancée</summary>
+          <form method="post" style="margin-top:14px;">
+            {% csrf_token %}
+            <div style="margin-bottom:12px;">
+              <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:6px;">Statut</label>
+              <select name="status">
+                {% for val, label in status_choices %}
+                <option value="{{ val }}" {% if exchange.status == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:6px;">Note admin</label>
+              <textarea name="admin_note" placeholder="Note visible par le client lors du suivi..." rows="3">{{ exchange.admin_note }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="font-size:0.85rem;">Enregistrer</button>
+          </form>
+        </details>
+      </div>
+
+      <!-- Résumé statuts -->
+      <div class="card">
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:14px;">Guide des statuts</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:0.82rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge badge-pending" style="font-size:0.7rem;min-width:80px;justify-content:center;">En attente</span>
+            <span style="color:var(--text-muted);">Nouveau, à traiter</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge badge-processing" style="font-size:0.7rem;min-width:80px;justify-content:center;">Traitement</span>
+            <span style="color:var(--text-muted);">Envoi MoneyGo en cours</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge badge-completed" style="font-size:0.7rem;min-width:80px;justify-content:center;">Envoyé</span>
+            <span style="color:var(--text-muted);">USD envoyés avec succès</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge badge-rejected" style="font-size:0.7rem;min-width:80px;justify-content:center;">Refusé</span>
+            <span style="color:var(--text-muted);">Demande annulée</span>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 

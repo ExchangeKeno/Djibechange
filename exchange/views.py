@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.views.decorators.http import require_POST
 from .models import ExchangeRequest
 from .forms import ExchangeForm
@@ -96,12 +96,25 @@ def dashboard_logout(request):
     return redirect('home')
 
 
+def _get_sidebar_counts():
+    """Retourne les compteurs pour la sidebar."""
+    qs = ExchangeRequest.objects
+    return {
+        'count_pending': qs.filter(status='pending').count(),
+        'count_processing': qs.filter(status='processing').count(),
+        'count_completed': qs.filter(status='completed').count(),
+        'count_rejected': qs.filter(status='rejected').count(),
+        'count_total': qs.count(),
+    }
+
+
 @login_required(login_url='/dashboard/login/')
 def dashboard(request):
     requests_qs = ExchangeRequest.objects.all()
+    pending_qs = requests_qs.filter(status='pending')
     stats = {
         'total': requests_qs.count(),
-        'pending': requests_qs.filter(status='pending').count(),
+        'pending': pending_qs.count(),
         'processing': requests_qs.filter(status='processing').count(),
         'completed': requests_qs.filter(status='completed').count(),
         'rejected': requests_qs.filter(status='rejected').count(),
@@ -111,12 +124,12 @@ def dashboard(request):
         .annotate(count=Count('id'))
         .order_by('-count')
     )
-    recent = requests_qs[:10]
     context = {
         'stats': stats,
         'wallet_stats': wallet_stats,
-        'recent': recent,
+        'pending_requests': pending_qs,
         'wallets': WALLETS,
+        **_get_sidebar_counts(),
     }
     return render(request, 'dashboard/dashboard.html', context)
 
@@ -146,6 +159,7 @@ def dashboard_requests(request):
         'wallet_filter': wallet_filter,
         'search': search,
         'status_choices': ExchangeRequest.STATUS_CHOICES,
+        **_get_sidebar_counts(),
     }
     return render(request, 'dashboard/requests.html', context)
 
@@ -160,12 +174,13 @@ def dashboard_request_detail(request, pk):
             exchange.status = new_status
             exchange.admin_note = admin_note
             exchange.save()
-            messages.success(request, f'Request updated to {exchange.get_status_display()}.')
+            messages.success(request, f'Demande mise à jour : {exchange.get_status_display()}.')
             return redirect('dashboard_request_detail', pk=pk)
     context = {
         'exchange': exchange,
         'wallets': WALLETS,
         'status_choices': ExchangeRequest.STATUS_CHOICES,
+        **_get_sidebar_counts(),
     }
     return render(request, 'dashboard/request_detail.html', context)
 
@@ -177,10 +192,63 @@ def dashboard_update_status(request, pk):
     try:
         data = json.loads(request.body)
         new_status = data.get('status')
+        admin_note = data.get('admin_note', '')
         if new_status in dict(ExchangeRequest.STATUS_CHOICES):
             exchange.status = new_status
+            if admin_note:
+                exchange.admin_note = admin_note
             exchange.save()
-            return JsonResponse({'success': True, 'status': exchange.get_status_display()})
+            return JsonResponse({
+                'success': True,
+                'status': exchange.get_status_display(),
+                'status_key': exchange.status,
+            })
     except Exception:
         pass
     return JsonResponse({'success': False}, status=400)
+
+
+@login_required(login_url='/dashboard/login/')
+def dashboard_history_sent(request):
+    qs = ExchangeRequest.objects.filter(status='completed').order_by('-updated_at')
+    search = request.GET.get('q', '')
+    wallet_filter = request.GET.get('wallet', '')
+    if search:
+        qs = qs.filter(
+            Q(moneygo_wallet__icontains=search) |
+            Q(email__icontains=search) |
+            Q(whatsapp_number__icontains=search)
+        )
+    if wallet_filter:
+        qs = qs.filter(wallet=wallet_filter)
+    context = {
+        'requests': qs,
+        'wallets': WALLETS,
+        'search': search,
+        'wallet_filter': wallet_filter,
+        **_get_sidebar_counts(),
+    }
+    return render(request, 'dashboard/history_sent.html', context)
+
+
+@login_required(login_url='/dashboard/login/')
+def dashboard_history_rejected(request):
+    qs = ExchangeRequest.objects.filter(status='rejected').order_by('-updated_at')
+    search = request.GET.get('q', '')
+    wallet_filter = request.GET.get('wallet', '')
+    if search:
+        qs = qs.filter(
+            Q(moneygo_wallet__icontains=search) |
+            Q(email__icontains=search) |
+            Q(whatsapp_number__icontains=search)
+        )
+    if wallet_filter:
+        qs = qs.filter(wallet=wallet_filter)
+    context = {
+        'requests': qs,
+        'wallets': WALLETS,
+        'search': search,
+        'wallet_filter': wallet_filter,
+        **_get_sidebar_counts(),
+    }
+    return render(request, 'dashboard/history_rejected.html', context)

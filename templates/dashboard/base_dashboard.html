@@ -1,5 +1,5 @@
 {% load static %}<!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,140 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    /* ── Sidebar badges ── */
+    .nav-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 50px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      margin-left: auto;
+    }
+    .nav-badge-orange { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .nav-badge-blue   { background: rgba(0,212,255,0.15);  color: var(--primary); }
+    .nav-badge-green  { background: rgba(16,185,129,0.15); color: var(--success); }
+    .nav-badge-red    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+
+    .sidebar-section-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      padding: 16px 14px 6px;
+    }
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 12px;
+    }
+
+    /* ── Toast notification ── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      animation: slideInRight 0.3s ease;
+      min-width: 280px;
+    }
+    .toast-success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+    .toast-error   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+    .toast-icon { font-size: 1.1rem; }
+    @keyframes slideInRight {
+      from { transform: translateX(120%); opacity: 0; }
+      to   { transform: translateX(0);   opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; transform: translateY(10px); }
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--dark-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.92) translateY(20px); opacity: 0; }
+      to   { transform: scale(1)    translateY(0);    opacity: 1; }
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .modal-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .modal-actions .btn { flex: 1; }
+  </style>
 </head>
 <body>
 
-<div class="particles"></div>
+<div id="toast-container"></div>
+
+<!-- Modal Refus -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal-box">
+    <div class="modal-title" style="color:var(--danger);">Refuser la demande</div>
+    <div class="modal-subtitle">Indiquez la raison du refus (optionnel). Le client pourra la voir.</div>
+    <input type="hidden" id="rejectPk" value="">
+    <div style="margin-bottom:14px;">
+      <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:8px;">Raison du refus</label>
+      <textarea id="rejectNote" rows="3" placeholder="Ex: Screenshot invalide, montant incorrect..." style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:var(--font);font-size:0.88rem;resize:vertical;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeRejectModal()">Annuler</button>
+      <button class="btn" style="background:rgba(239,68,68,0.15);color:var(--danger);border:1px solid rgba(239,68,68,0.3);" onclick="confirmReject()">
+        Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>
 
 {% if messages %}
   <div style="position:fixed;top:20px;right:20px;z-index:500;min-width:300px;">
@@ -30,51 +160,66 @@
       <div class="logo-icon">DX</div>
       <span class="gradient-text">DJIB Exchange</span>
     </a>
+
+    <div class="sidebar-section-title">Navigation</div>
     <ul class="sidebar-nav">
       <li>
         <a href="{% url 'dashboard' %}" class="{% block nav_overview %}{% endblock %}">
-          <span class="icon">📊</span> Overview
+          <span class="icon">📊</span> Vue d'ensemble
         </a>
       </li>
       <li>
         <a href="{% url 'dashboard_requests' %}" class="{% block nav_requests %}{% endblock %}">
-          <span class="icon">📋</span> All Requests
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'dashboard_requests' %}?status=pending" class="{% block nav_pending %}{% endblock %}">
-          <span class="icon">⏳</span> Pending
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'dashboard_requests' %}?status=processing">
-          <span class="icon">⚡</span> Processing
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'dashboard_requests' %}?status=completed">
-          <span class="icon">✅</span> Completed
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'dashboard_requests' %}?status=rejected">
-          <span class="icon">❌</span> Rejected
+          <span class="icon">📋</span> Toutes les demandes
+          {% if count_total %}<span class="nav-badge nav-badge-blue">{{ count_total }}</span>{% endif %}
         </a>
       </li>
     </ul>
-    <div style="padding:0 12px;margin-top:auto;">
+
+    <div class="sidebar-section-title">En cours</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=pending" class="{% block nav_pending %}{% endblock %}">
+          <span class="icon">⏳</span> En attente
+          {% if count_pending %}<span class="nav-badge nav-badge-orange">{{ count_pending }}</span>{% endif %}
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=processing" class="{% block nav_processing %}{% endblock %}">
+          <span class="icon">⚡</span> En traitement
+          {% if count_processing %}<span class="nav-badge nav-badge-blue">{{ count_processing }}</span>{% endif %}
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-section-title">Historique</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="{% url 'dashboard_history_sent' %}" class="{% block nav_sent %}{% endblock %}">
+          <span class="icon">✅</span> Envoyées
+          {% if count_completed %}<span class="nav-badge nav-badge-green">{{ count_completed }}</span>{% endif %}
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_history_rejected' %}" class="{% block nav_rejected %}{% endblock %}">
+          <span class="icon">❌</span> Refusées
+          {% if count_rejected %}<span class="nav-badge nav-badge-red">{{ count_rejected }}</span>{% endif %}
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <div style="padding:0 12px;margin-top:8px;">
       <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:12px;">
-        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Logged in as</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Connecté en tant que</div>
         <div style="font-size:0.88rem;font-weight:600;">{{ request.user.username }}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Administrateur</div>
       </div>
     </div>
     <div class="sidebar-bottom">
-      <a href="{% url 'home' %}">
-        <span class="icon">🏠</span> View Site
-      </a>
-      <a href="{% url 'dashboard_logout' %}" style="margin-top:4px;">
-        <span class="icon">🚪</span> Logout
-      </a>
+      <a href="{% url 'home' %}"><span class="icon">🌐</span> Voir le site</a>
+      <a href="{% url 'dashboard_logout' %}" style="margin-top:4px;"><span class="icon">🚪</span> Déconnexion</a>
     </div>
   </aside>
 
@@ -85,6 +230,83 @@
 </div>
 
 <script src="{% static 'js/main.js' %}"></script>
+<script>
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.4s ease forwards';
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
+
+// ── AJAX status update ─────────────────────────────────────────────────────
+function updateStatus(pk, status, note = '', onSuccess = null) {
+  const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+  fetch(`/dashboard/requests/${pk}/status/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+    body: JSON.stringify({ status, admin_note: note }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      if (onSuccess) onSuccess(data);
+      else location.reload();
+    } else {
+      showToast('Erreur lors de la mise à jour.', 'error');
+    }
+  })
+  .catch(() => showToast('Erreur réseau.', 'error'));
+}
+
+// ── Boutons d'action inline ────────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-action-btn]');
+  if (!btn) return;
+  const pk     = btn.dataset.pk;
+  const status = btn.dataset.status;
+  if (status === 'rejected') {
+    openRejectModal(pk);
+  } else {
+    btn.disabled = true;
+    btn.textContent = '...';
+    updateStatus(pk, status, '', (data) => {
+      showToast(
+        status === 'completed' ? 'Paiement envoyé avec succès !' : 'Statut mis à jour.',
+        'success'
+      );
+      setTimeout(() => location.reload(), 1200);
+    });
+  }
+});
+
+// ── Modal Refus ────────────────────────────────────────────────────────────
+function openRejectModal(pk) {
+  document.getElementById('rejectPk').value = pk;
+  document.getElementById('rejectNote').value = '';
+  document.getElementById('rejectModal').classList.add('active');
+}
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('active');
+}
+function confirmReject() {
+  const pk   = document.getElementById('rejectPk').value;
+  const note = document.getElementById('rejectNote').value.trim();
+  updateStatus(pk, 'rejected', note, () => {
+    closeRejectModal();
+    showToast('Demande refusée.', 'error');
+    setTimeout(() => location.reload(), 1200);
+  });
+}
+document.getElementById('rejectModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRejectModal();
+});
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

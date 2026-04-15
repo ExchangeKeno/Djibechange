@@ -1,51 +1,68 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}All Requests — DJIB Exchange Admin{% endblock %}
+{% block title %}Toutes les demandes — DJIB Exchange Admin{% endblock %}
 {% block nav_requests %}active{% endblock %}
 
 {% block dashboard_content %}
+<style>
+  .action-btn-send {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+    border: 1px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.1);
+    color: #34d399; cursor: pointer; transition: all 0.2s;
+  }
+  .action-btn-send:hover { background: rgba(16,185,129,0.2); }
+  .action-btn-reject {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+    border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08);
+    color: #f87171; cursor: pointer; transition: all 0.2s; margin-left: 4px;
+  }
+  .action-btn-reject:hover { background: rgba(239,68,68,0.18); }
+</style>
+
 <div class="dash-header">
   <div>
-    <h1>Exchange <span class="gradient-text">Requests</span></h1>
-    <p>{{ requests.count }} request{{ requests.count|pluralize }} found</p>
+    <h1>Toutes les <span class="gradient-text">Demandes</span></h1>
+    <p>{{ requests.count }} demande{{ requests.count|pluralize }} trouvée{{ requests.count|pluralize }}</p>
   </div>
 </div>
 
-<!-- Filters -->
+<!-- Filtres -->
 <form method="get" style="margin-bottom:24px;">
   <div class="filters-bar">
-    <input type="text" name="q" class="search-input" placeholder="Search by MoneyGo ID, email, WhatsApp..." value="{{ search }}">
+    <input type="text" name="q" class="search-input" placeholder="Rechercher par MoneyGo ID, email, WhatsApp..." value="{{ search }}">
     <select name="status" class="filter-select" onchange="this.form.submit()">
-      <option value="">All Statuses</option>
+      <option value="">Tous les statuts</option>
       {% for val, label in status_choices %}
       <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
     <select name="wallet" class="filter-select" onchange="this.form.submit()">
-      <option value="">All Wallets</option>
+      <option value="">Tous les wallets</option>
       {% for key, info in wallets.items %}
       <option value="{{ key }}" {% if wallet_filter == key %}selected{% endif %}>{{ info.name }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+    <button type="submit" class="btn btn-primary btn-sm">Rechercher</button>
     {% if search or status_filter or wallet_filter %}
-    <a href="{% url 'dashboard_requests' %}" class="btn btn-outline btn-sm">Clear</a>
+    <a href="{% url 'dashboard_requests' %}" class="btn btn-outline btn-sm">Effacer</a>
     {% endif %}
   </div>
 </form>
 
-<!-- Table -->
+<!-- Tableau -->
 <div class="table-wrapper">
   <div class="table-scroll">
     <table>
       <thead>
         <tr>
-          <th>Ref</th>
+          <th>Réf.</th>
           <th>Wallet</th>
-          <th>Amount</th>
-          <th>Receives</th>
+          <th>Montant envoyé</th>
+          <th>À recevoir</th>
           <th>MoneyGo Wallet</th>
           <th>WhatsApp</th>
-          <th>Status</th>
+          <th>Statut</th>
           <th>Date</th>
           <th>Actions</th>
         </tr>
@@ -57,36 +74,44 @@
           <td>
             <span class="wallet-chip">
               <span class="wallet-dot" style="
-                {% if req.wallet == 'waafi' %}background:#1a73e8{% elif req.wallet == 'cac' %}background:#c8a93b{% elif req.wallet == 'dmoney' %}background:#f5a623{% else %}background:#00897b{% endif %}
+                {% if req.wallet == 'waafi' %}background:#1a73e8
+                {% elif req.wallet == 'cac' %}background:#c8a93b
+                {% elif req.wallet == 'dmoney' %}background:#f5a623
+                {% else %}background:#00897b{% endif %}
               "></span>
               {{ req.get_wallet_display }}
             </span>
           </td>
-          <td style="font-weight:600;">{{ req.amount_sent }}</td>
-          <td style="color:var(--success);font-weight:600;">{{ req.amount_to_receive }} USD</td>
-          <td style="font-size:0.85rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ req.moneygo_wallet }}">{{ req.moneygo_wallet }}</td>
-          <td style="font-size:0.85rem;">{{ req.whatsapp_number }}</td>
-          <td><span class="badge {{ req.status_badge_class }}">{{ req.get_status_display }}</span></td>
-          <td style="color:var(--text-muted);font-size:0.8rem;white-space:nowrap;">{{ req.created_at|date:"d M Y" }}<br>{{ req.created_at|date:"H:i" }}</td>
+          <td style="font-weight:700;">{{ req.amount_sent }} DJF</td>
+          <td style="color:var(--success);font-weight:700;">{{ req.amount_to_receive }} USD</td>
+          <td style="font-size:0.83rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ req.moneygo_wallet }}">{{ req.moneygo_wallet }}</td>
+          <td style="font-size:0.83rem;">{{ req.whatsapp_number }}</td>
+          <td>
+            <span class="badge {{ req.status_badge_class }}" id="badge-{{ req.pk }}">{{ req.get_status_display }}</span>
+          </td>
+          <td style="color:var(--text-muted);font-size:0.78rem;white-space:nowrap;">
+            {{ req.created_at|date:"d M Y" }}<br>{{ req.created_at|date:"H:i" }}
+          </td>
           <td style="white-space:nowrap;">
-            <a href="{% url 'dashboard_request_detail' req.pk %}" class="btn btn-outline btn-sm">View</a>
-            {% if req.status == 'pending' %}
-            <button class="btn btn-sm" style="background:rgba(0,212,255,0.15);color:var(--primary);border:1px solid rgba(0,212,255,0.3);margin-left:4px;"
-              data-status-btn data-pk="{{ req.pk }}" data-status="processing">
-              → Process
+            <a href="{% url 'dashboard_request_detail' req.pk %}" class="btn btn-outline btn-sm">Détail</a>
+            {% if req.status == 'pending' or req.status == 'processing' %}
+            <button class="action-btn-send" data-action-btn data-pk="{{ req.pk }}" data-status="completed">
+              ✅ Envoyer
             </button>
-            {% elif req.status == 'processing' %}
-            <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);color:var(--success);border:1px solid rgba(16,185,129,0.3);margin-left:4px;"
-              data-status-btn data-pk="{{ req.pk }}" data-status="completed">
-              ✓ Complete
+            <button class="action-btn-reject" data-action-btn data-pk="{{ req.pk }}" data-status="rejected">
+              ✕ Refuser
             </button>
+            {% elif req.status == 'completed' %}
+            <span style="font-size:0.75rem;color:var(--success);">✅ Envoyé</span>
+            {% elif req.status == 'rejected' %}
+            <span style="font-size:0.75rem;color:var(--danger);">✕ Refusé</span>
             {% endif %}
           </td>
         </tr>
         {% empty %}
         <tr>
           <td colspan="9" style="text-align:center;color:var(--text-muted);padding:60px;">
-            No exchange requests found.
+            Aucune demande trouvée.
           </td>
         </tr>
         {% endfor %}
