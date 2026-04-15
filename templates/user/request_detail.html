@@ -1,0 +1,160 @@
+{% extends 'user/base_user.html' %}
+{% block title %}Demande #{{ exchange.short_ref }} — DJIB Exchange{% endblock %}
+
+{% block user_content %}
+<style>
+  .status-banner {
+    border-radius: 16px; padding: 24px 28px;
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 24px;
+  }
+  .sb-pending    { background: rgba(245,158,11,0.08);  border: 1px solid rgba(245,158,11,0.25); }
+  .sb-processing { background: rgba(0,212,255,0.07);   border: 1px solid rgba(0,212,255,0.25); }
+  .sb-completed  { background: rgba(16,185,129,0.08);  border: 1px solid rgba(16,185,129,0.25); }
+  .sb-rejected   { background: rgba(239,68,68,0.07);   border: 1px solid rgba(239,68,68,0.2); }
+  .sb-icon { font-size: 2.5rem; }
+  .sb-title { font-size: 1.1rem; font-weight: 800; }
+  .sb-sub { font-size: 0.83rem; margin-top: 4px; opacity: 0.8; }
+  .sb-pending .sb-title    { color: #fbbf24; }
+  .sb-processing .sb-title { color: var(--primary); }
+  .sb-completed .sb-title  { color: #34d399; }
+  .sb-rejected .sb-title   { color: #f87171; }
+</style>
+
+<!-- Breadcrumb -->
+<div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">
+  <a href="{% url 'user_dashboard' %}" style="color:var(--text-muted);">Tableau de bord</a>
+  <span>/</span>
+  <a href="{% url 'user_requests' %}" style="color:var(--text-muted);">Mes demandes</a>
+  <span>/</span>
+  <span class="ref-code" style="font-size:0.8rem;">{{ exchange.short_ref }}</span>
+</div>
+
+<h1 style="font-size:1.4rem;font-weight:800;margin-bottom:20px;">
+  Demande <span class="gradient-text">#{{ exchange.short_ref }}</span>
+</h1>
+
+<!-- Bannière de statut -->
+<div class="status-banner sb-{{ exchange.status }}">
+  <div class="sb-icon">
+    {% if exchange.status == 'pending' %}⏳
+    {% elif exchange.status == 'processing' %}⚡
+    {% elif exchange.status == 'completed' %}✅
+    {% else %}❌{% endif %}
+  </div>
+  <div>
+    <div class="sb-title">
+      {% if exchange.status == 'pending' %}Demande en attente
+      {% elif exchange.status == 'processing' %}Paiement en cours de traitement
+      {% elif exchange.status == 'completed' %}Paiement envoyé avec succès !
+      {% else %}Demande refusée{% endif %}
+    </div>
+    <div class="sb-sub">
+      {% if exchange.status == 'pending' %}Votre demande a bien été reçue. L'admin va la traiter prochainement.
+      {% elif exchange.status == 'processing' %}L'admin est en train de traiter votre paiement MoneyGo.
+      {% elif exchange.status == 'completed' %}{{ exchange.amount_to_receive }} USD ont été envoyés sur votre wallet MoneyGo.
+      {% else %}Votre demande a été refusée.{% if exchange.admin_note %} Raison : {{ exchange.admin_note }}{% endif %}{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if exchange.status == 'rejected' and exchange.admin_note %}
+<div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+  <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#f87171;margin-bottom:6px;">Raison du refus</div>
+  <div style="font-size:0.88rem;">{{ exchange.admin_note }}</div>
+</div>
+{% endif %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+  <!-- Détails transaction -->
+  <div class="card">
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:18px;">Détails</div>
+    <div class="detail-field">
+      <div class="field-label">Portefeuille utilisé</div>
+      <div class="field-value">
+        <span class="wallet-chip">
+          <span class="wallet-dot" style="{% if exchange.wallet == 'waafi' %}background:#1a73e8{% elif exchange.wallet == 'cac' %}background:#c8a93b{% elif exchange.wallet == 'dmoney' %}background:#f5a623{% else %}background:#00897b{% endif %}"></span>
+          {{ exchange.get_wallet_display }}
+        </span>
+      </div>
+    </div>
+    <div class="detail-field">
+      <div class="field-label">Montant envoyé</div>
+      <div class="field-value" style="font-size:1.3rem;font-weight:800;">{{ exchange.amount_sent }} DJF</div>
+    </div>
+    <div class="detail-field">
+      <div class="field-label">À recevoir (MoneyGo)</div>
+      <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--success);">{{ exchange.amount_to_receive }} USD</div>
+    </div>
+    <div class="detail-field">
+      <div class="field-label">MoneyGo Wallet ID</div>
+      <div class="field-value" style="font-family:monospace;color:var(--primary);">{{ exchange.moneygo_wallet }}</div>
+    </div>
+    <div class="detail-field">
+      <div class="field-label">Date de soumission</div>
+      <div class="field-value" style="color:var(--text-muted);">{{ exchange.created_at|date:"d M Y, H:i" }}</div>
+    </div>
+    <div class="detail-field">
+      <div class="field-label">Dernière mise à jour</div>
+      <div class="field-value" style="color:var(--text-muted);">{{ exchange.updated_at|date:"d M Y, H:i" }}</div>
+    </div>
+  </div>
+
+  <!-- Screenshot -->
+  <div class="card">
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:18px;">Capture d'écran</div>
+    {% if exchange.screenshot %}
+    <div class="screenshot-viewer" data-lightbox="{{ exchange.screenshot.url }}">
+      <img src="{{ exchange.screenshot.url }}" alt="Capture">
+      <div style="padding:10px 16px;font-size:0.78rem;color:var(--text-muted);background:rgba(0,0,0,0.3);">
+        Cliquer pour agrandir
+      </div>
+    </div>
+    {% else %}
+    <div style="padding:40px;text-align:center;border:2px dashed var(--border);border-radius:10px;color:var(--text-muted);">
+      Aucune capture
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Suivi des étapes -->
+<div class="card" style="margin-top:20px;">
+  <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:18px;">Suivi de la demande</div>
+  <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
+    {% for step_key, step_label, step_icon in steps %}
+    <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:120px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;
+          {% if step_key == exchange.status %}background:var(--primary);color:#000;font-weight:800;
+          {% elif step_reached %}background:rgba(16,185,129,0.2);color:var(--success);
+          {% else %}background:rgba(255,255,255,0.06);color:var(--text-muted);{% endif %}
+        ">{{ step_icon }}</div>
+        <div style="font-size:0.72rem;font-weight:600;text-align:center;
+          {% if step_key == exchange.status %}color:var(--primary);{% else %}color:var(--text-muted);{% endif %}
+        ">{{ step_label }}</div>
+      </div>
+      {% if not forloop.last %}
+      <div style="height:2px;flex:1;background:{% if step_key == 'pending' and exchange.status != 'pending' %}var(--success){% else %}var(--border){% endif %};margin-bottom:24px;"></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div style="margin-top:20px;display:flex;gap:12px;">
+  <a href="{% url 'user_requests' %}" class="btn btn-outline">← Mes demandes</a>
+  {% if exchange.status == 'rejected' %}
+  <a href="{% url 'user_new_request' %}" class="btn btn-primary">Faire une nouvelle demande</a>
+  {% endif %}
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close">&times;</span>
+  <img src="" alt="">
+</div>
+
+{% endblock %}

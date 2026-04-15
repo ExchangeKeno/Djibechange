@@ -1,0 +1,125 @@
+{% extends 'user/base_user.html' %}
+{% block title %}Nouvelle demande — DJIB Exchange{% endblock %}
+{% block nav_new %}active{% endblock %}
+
+{% block user_content %}
+<style>
+  .wallet-select-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 14px; margin-bottom: 28px; }
+  .wallet-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    padding: 20px 14px; border-radius: 14px; border: 2px solid var(--border);
+    background: var(--dark-card); cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .wallet-btn:hover, .wallet-btn.selected {
+    border-color: var(--primary); background: rgba(0,212,255,0.06);
+    box-shadow: 0 0 20px rgba(0,212,255,0.12);
+  }
+  .wallet-btn-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; color: #fff;
+  }
+  .wallet-btn-name { font-size: 0.82rem; font-weight: 600; text-align: center; color: var(--text); }
+</style>
+
+<div style="max-width:620px;">
+
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:4px;">Nouvelle <span class="gradient-text">demande</span></h1>
+    <p style="color:var(--text-muted);font-size:0.88rem;">Choisissez votre portefeuille et remplissez le formulaire.</p>
+  </div>
+
+  <!-- Étape 1 : Choisir le wallet -->
+  <div class="card" style="margin-bottom:20px;">
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:16px;">
+      Étape 1 — Choisir le portefeuille
+    </div>
+    <div class="wallet-select-grid">
+      {% for key, info in wallets.items %}
+      <button type="button" class="wallet-btn {% if wallet_key == key %}selected{% endif %}"
+        onclick="selectWallet('{{ key }}')">
+        <div class="wallet-btn-icon" style="
+          {% if key == 'waafi' %}background:linear-gradient(135deg,#1a73e8,#0d47a1)
+          {% elif key == 'cac' %}background:linear-gradient(135deg,#1a3a6b,#c8a93b)
+          {% elif key == 'dmoney' %}background:linear-gradient(135deg,#1e3a5f,#f5a623)
+          {% else %}background:linear-gradient(135deg,#00897b,#004d40){% endif %}
+        ">
+          {% if key == 'waafi' %}WF{% elif key == 'cac' %}CAC{% elif key == 'dmoney' %}D-M{% else %}SAB{% endif %}
+        </div>
+        <div class="wallet-btn-name">{{ info.name }}</div>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Étape 2 : Formulaire -->
+  <div class="card" id="form-section" style="{% if not wallet_key %}display:none;{% endif %}">
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:16px;">
+      Étape 2 — Détails de la transaction
+    </div>
+
+    <!-- Taux de change -->
+    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:0.85rem;color:var(--text-muted);">Taux de change actuel</span>
+      <span style="font-weight:700;color:var(--primary);">1 DJF = {{ exchange_rate }} USD MoneyGo</span>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="wallet_key" id="wallet_key_input" value="{{ wallet_key }}">
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">
+          Montant envoyé (DJF)
+        </label>
+        {{ form.amount_sent }}
+        {% if form.amount_sent.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.amount_sent.errors.0 }}</div>{% endif %}
+        <div style="margin-top:6px;font-size:0.78rem;color:var(--text-muted);">Vous recevrez : <span id="preview-receive" style="color:var(--success);font-weight:700;">— USD</span></div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">
+          MoneyGo Wallet ID
+        </label>
+        {{ form.moneygo_wallet }}
+        {% if form.moneygo_wallet.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.moneygo_wallet.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">
+          Capture d'écran de la transaction
+        </label>
+        {{ form.screenshot }}
+        {% if form.screenshot.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.screenshot.errors.0 }}</div>{% endif %}
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">PNG, JPG ou WebP — max 10 Mo</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:14px;">
+        Soumettre ma demande →
+      </button>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const rate = {{ exchange_rate }};
+function selectWallet(key) {
+  document.getElementById('wallet_key_input').value = key;
+  document.querySelectorAll('.wallet-btn').forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.addEventListener('input', function(e) {
+  if (e.target.name === 'amount_sent') {
+    const v = parseFloat(e.target.value) || 0;
+    const r = (v * rate).toFixed(6);
+    document.getElementById('preview-receive').textContent = v > 0 ? r + ' USD' : '— USD';
+  }
+});
+</script>
+{% endblock %}

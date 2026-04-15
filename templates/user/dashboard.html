@@ -1,0 +1,120 @@
+{% extends 'user/base_user.html' %}
+{% block title %}Mon tableau de bord — DJIB Exchange{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block user_content %}
+<style>
+  .user-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 14px; margin-bottom: 28px; }
+  .user-stat {
+    background: var(--dark-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; text-align: center; transition: transform 0.2s;
+  }
+  .user-stat:hover { transform: translateY(-2px); }
+  .user-stat-num { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .user-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
+
+  .req-card {
+    background: var(--dark-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+    text-decoration: none; color: var(--text); transition: all 0.2s; margin-bottom: 10px;
+  }
+  .req-card:hover { border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.03); }
+  .req-card-icon {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 800; color: #fff;
+  }
+</style>
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:16px;">
+  <div>
+    <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:4px;">
+      Bonjour, <span class="gradient-text">{{ request.user.first_name|default:request.user.username }}</span> 👋
+    </h1>
+    <p style="color:var(--text-muted);font-size:0.88rem;">Gérez vos demandes d'échange depuis votre espace personnel.</p>
+  </div>
+  <a href="{% url 'user_new_request' %}" class="btn btn-primary">
+    ➕ Nouvelle demande
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="user-stat-grid">
+  <div class="user-stat">
+    <div class="user-stat-num">{{ stats.total }}</div>
+    <div class="user-stat-lbl">Total</div>
+  </div>
+  <a href="{% url 'user_requests' %}?status=pending" style="text-decoration:none;">
+    <div class="user-stat" style="border-color:rgba(245,158,11,0.2);">
+      <div class="user-stat-num" style="color:#fbbf24;">{{ stats.pending }}</div>
+      <div class="user-stat-lbl">⏳ En attente</div>
+    </div>
+  </a>
+  <a href="{% url 'user_requests' %}?status=processing" style="text-decoration:none;">
+    <div class="user-stat" style="border-color:rgba(0,212,255,0.2);">
+      <div class="user-stat-num" style="color:var(--primary);">{{ stats.processing }}</div>
+      <div class="user-stat-lbl">⚡ En traitement</div>
+    </div>
+  </a>
+  <a href="{% url 'user_requests' %}?status=completed" style="text-decoration:none;">
+    <div class="user-stat" style="border-color:rgba(16,185,129,0.2);">
+      <div class="user-stat-num" style="color:var(--success);">{{ stats.completed }}</div>
+      <div class="user-stat-lbl">✅ Acceptées</div>
+    </div>
+  </a>
+  <a href="{% url 'user_requests' %}?status=rejected" style="text-decoration:none;">
+    <div class="user-stat" style="border-color:rgba(239,68,68,0.2);">
+      <div class="user-stat-num" style="color:var(--danger);">{{ stats.rejected }}</div>
+      <div class="user-stat-lbl">❌ Refusées</div>
+    </div>
+  </a>
+</div>
+
+<!-- Mes dernières demandes -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+  <h2 style="font-size:1rem;font-weight:700;">Mes dernières demandes</h2>
+  <a href="{% url 'user_requests' %}" style="font-size:0.82rem;color:var(--primary);">Voir tout →</a>
+</div>
+
+{% if recent %}
+  {% for req in recent %}
+  <a href="{% url 'user_request_detail' req.pk %}" class="req-card">
+    <div class="req-card-icon" style="
+      {% if req.wallet == 'waafi' %}background:linear-gradient(135deg,#1a73e8,#0d47a1)
+      {% elif req.wallet == 'cac' %}background:linear-gradient(135deg,#1a3a6b,#c8a93b)
+      {% elif req.wallet == 'dmoney' %}background:linear-gradient(135deg,#1e3a5f,#f5a623)
+      {% else %}background:linear-gradient(135deg,#00897b,#004d40){% endif %}
+    ">
+      {% if req.wallet == 'waafi' %}WF{% elif req.wallet == 'cac' %}CAC{% elif req.wallet == 'dmoney' %}D-M{% else %}SAB{% endif %}
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-family:monospace;font-size:0.78rem;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;">{{ req.short_ref }}</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);">{{ req.created_at|date:"d M Y" }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.88rem;">
+          <strong>{{ req.amount_sent }} DJF</strong>
+          <span style="color:var(--text-muted);font-size:0.78rem;"> → {{ req.amount_to_receive }} USD MoneyGo</span>
+        </span>
+        <span class="status-pill sp-{{ req.status }}">
+          {% if req.status == 'pending' %}⏳ En attente
+          {% elif req.status == 'processing' %}⚡ En traitement
+          {% elif req.status == 'completed' %}✅ Acceptée
+          {% else %}❌ Refusée{% endif %}
+        </span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+{% else %}
+<div style="text-align:center;padding:60px 20px;background:var(--dark-card);border:1px dashed var(--border);border-radius:16px;">
+  <div style="font-size:3rem;margin-bottom:14px;">📭</div>
+  <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">Aucune demande pour le moment</div>
+  <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">Créez votre première demande d'échange dès maintenant.</div>
+  <a href="{% url 'user_new_request' %}" class="btn btn-primary">➕ Faire une demande</a>
+</div>
+{% endif %}
+
+{% endblock %}

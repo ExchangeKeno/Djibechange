@@ -1,0 +1,59 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — DJIB Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
+  <div style="width:100%;max-width:420px;">
+
+    <a href="{% url 'home' %}" class="logo" style="justify-content:center;margin-bottom:36px;display:flex;">
+      <div class="logo-icon">DX</div>
+      <span class="gradient-text" style="font-size:1.5rem;">DJIB Exchange</span>
+    </a>
+
+    <div class="card" style="padding:36px;">
+      <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:6px;">Connexion</h1>
+      <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:28px;">Connectez-vous pour accéder à votre espace personnel.</p>
+
+      {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }}" style="margin-bottom:16px;">
+          <span>⚠</span>{{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div style="margin-bottom:18px;">
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Adresse email</label>
+          <input type="email" name="email" class="form-input" placeholder="votre@email.com" required autocomplete="email">
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Mot de passe</label>
+          <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:14px;">
+          Se connecter →
+        </button>
+      </form>
+
+      <div style="text-align:center;margin-top:20px;font-size:0.85rem;color:var(--text-muted);">
+        Pas encore de compte ?
+        <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">S'inscrire</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

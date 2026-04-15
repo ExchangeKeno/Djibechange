@@ -1,0 +1,89 @@
+{% extends 'user/base_user.html' %}
+{% block title %}Mes demandes — DJIB Exchange{% endblock %}
+{% block nav_requests %}active{% endblock %}
+{% block nav_sent %}{% if status_filter == 'completed' %}active{% endif %}{% endblock %}
+{% block nav_rejected %}{% if status_filter == 'rejected' %}active{% endif %}{% endblock %}
+
+{% block user_content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:4px;">
+      {% if status_filter == 'completed' %}Demandes <span class="gradient-text">acceptées</span>
+      {% elif status_filter == 'rejected' %}Demandes <span class="gradient-text">refusées</span>
+      {% elif status_filter == 'pending' %}Demandes <span class="gradient-text">en attente</span>
+      {% elif status_filter == 'processing' %}Demandes <span class="gradient-text">en traitement</span>
+      {% else %}Toutes mes <span class="gradient-text">demandes</span>{% endif %}
+    </h1>
+    <p style="color:var(--text-muted);font-size:0.85rem;">{{ requests.count }} demande{{ requests.count|pluralize }}</p>
+  </div>
+  <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-sm">➕ Nouvelle demande</a>
+</div>
+
+<!-- Filtres rapides -->
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+  <a href="{% url 'user_requests' %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius:50px;">Toutes</a>
+  <a href="?status=pending"    class="btn btn-sm {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius:50px;">⏳ En attente</a>
+  <a href="?status=processing" class="btn btn-sm {% if status_filter == 'processing' %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius:50px;">⚡ En traitement</a>
+  <a href="?status=completed"  class="btn btn-sm {% if status_filter == 'completed' %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius:50px;">✅ Acceptées</a>
+  <a href="?status=rejected"   class="btn btn-sm {% if status_filter == 'rejected' %}btn-primary{% else %}btn-outline{% endif %}" style="border-radius:50px;">❌ Refusées</a>
+</div>
+
+{% if requests %}
+<div style="display:flex;flex-direction:column;gap:10px;">
+  {% for req in requests %}
+  <a href="{% url 'user_request_detail' req.pk %}" style="text-decoration:none;">
+    <div style="background:var(--dark-card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:16px;transition:all 0.2s;"
+      onmouseover="this.style.borderColor='rgba(0,212,255,0.3)';this.style.background='rgba(0,212,255,0.03)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--dark-card)'">
+      <!-- Icône wallet -->
+      <div style="width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;
+        {% if req.wallet == 'waafi' %}background:linear-gradient(135deg,#1a73e8,#0d47a1)
+        {% elif req.wallet == 'cac' %}background:linear-gradient(135deg,#1a3a6b,#c8a93b)
+        {% elif req.wallet == 'dmoney' %}background:linear-gradient(135deg,#1e3a5f,#f5a623)
+        {% else %}background:linear-gradient(135deg,#00897b,#004d40){% endif %}
+      ">
+        {% if req.wallet == 'waafi' %}WF{% elif req.wallet == 'cac' %}CAC{% elif req.wallet == 'dmoney' %}D-M{% else %}SAB{% endif %}
+      </div>
+      <!-- Infos -->
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:monospace;font-size:0.78rem;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;">{{ req.short_ref }}</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">{{ req.created_at|date:"d M Y, H:i" }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:0.9rem;">
+            <strong>{{ req.amount_sent }} DJF</strong>
+            <span style="color:var(--text-muted);font-size:0.8rem;"> → </span>
+            <strong style="color:var(--success);">{{ req.amount_to_receive }} USD</strong>
+            <span style="color:var(--text-muted);font-size:0.78rem;"> MoneyGo</span>
+          </span>
+          <span class="status-pill sp-{{ req.status }}">
+            {% if req.status == 'pending' %}⏳ En attente
+            {% elif req.status == 'processing' %}⚡ En traitement
+            {% elif req.status == 'completed' %}✅ Acceptée
+            {% else %}❌ Refusée{% endif %}
+          </span>
+        </div>
+        {% if req.status == 'rejected' and req.admin_note %}
+        <div style="margin-top:6px;font-size:0.78rem;color:var(--danger);opacity:0.8;">
+          Refus : {{ req.admin_note|truncatechars:60 }}
+        </div>
+        {% endif %}
+      </div>
+      <span style="color:var(--text-muted);font-size:0.85rem;">›</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:60px 20px;background:var(--dark-card);border:1px dashed var(--border);border-radius:16px;">
+  <div style="font-size:2.5rem;margin-bottom:14px;">📭</div>
+  <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">Aucune demande trouvée</div>
+  <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">
+    {% if status_filter %}Aucune demande avec ce statut.{% else %}Vous n'avez pas encore fait de demande.{% endif %}
+  </div>
+  <a href="{% url 'user_new_request' %}" class="btn btn-primary">➕ Faire une demande</a>
+</div>
+{% endif %}
+
+{% endblock %}

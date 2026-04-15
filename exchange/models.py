@@ -1,6 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone_number = models.CharField(max_length=30)
+
+    def __str__(self):
+        return f'{self.user.get_full_name() or self.user.username}'
 
 
 def screenshot_upload_path(instance, filename):
@@ -15,10 +24,10 @@ class ExchangeRequest(models.Model):
     STATUS_REJECTED = 'rejected'
 
     STATUS_CHOICES = [
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_PROCESSING, 'Processing'),
-        (STATUS_COMPLETED, 'Completed'),
-        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_PENDING, 'En attente'),
+        (STATUS_PROCESSING, 'En traitement'),
+        (STATUS_COMPLETED, 'Envoyé'),
+        (STATUS_REJECTED, 'Refusé'),
     ]
 
     WALLET_CHOICES = [
@@ -28,6 +37,10 @@ class ExchangeRequest(models.Model):
         ('saba', 'Saba African Bank'),
     ]
 
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='exchange_requests'
+    )
     reference_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     wallet = models.CharField(max_length=20, choices=WALLET_CHOICES)
     amount_sent = models.DecimalField(max_digits=12, decimal_places=2)
@@ -36,14 +49,14 @@ class ExchangeRequest(models.Model):
     whatsapp_number = models.CharField(max_length=30)
     email = models.EmailField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    admin_note = models.TextField(blank=True, verbose_name='Admin Note')
+    admin_note = models.TextField(blank=True, verbose_name='Note admin')
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Exchange Request'
-        verbose_name_plural = 'Exchange Requests'
+        verbose_name = 'Demande d\'échange'
+        verbose_name_plural = 'Demandes d\'échange'
 
     def __str__(self):
         return f'#{str(self.reference_id)[:8].upper()} — {self.get_wallet_display()} → MoneyGo'
