@@ -1,0 +1,105 @@
+{% load static %}<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DJIB Exchange{% endblock %}</title>
+  <meta name="description" content="DJIB Exchange — Fast & secure currency exchange for Djibouti. Receive MoneyGo USD instantly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body data-rate="{{ exchange_rate|default:'1.005639' }}">
+
+<div class="particles"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="{% url 'home' %}" class="logo">
+      <div class="logo-icon">DX</div>
+      <span class="gradient-text">DJIB Exchange</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">{{ t.nav_home }}</a></li>
+      <li><a href="{% url 'home' %}#how-it-works">{{ t.nav_how }}</a></li>
+      <li><a href="{% url 'track_order' %}">{{ t.nav_track }}</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <!-- Language switcher -->
+      <form action="{% url 'set_language' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        {% if current_lang == 'fr' %}
+          <input type="hidden" name="language" value="en">
+          <button type="submit" class="lang-btn" title="Switch to English">🇬🇧 EN</button>
+        {% else %}
+          <input type="hidden" name="language" value="fr">
+          <button type="submit" class="lang-btn" title="Passer en français">🇫🇷 FR</button>
+        {% endif %}
+      </form>
+      <a href="{% url 'home' %}#wallets" class="btn btn-primary btn-sm nav-btn">{{ t.nav_exchange_now }}</a>
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+  <div style="position:fixed;top:84px;right:20px;z-index:200;min-width:300px;">
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }}">
+        <span>{% if msg.tags == 'error' %}⚠{% else %}✓{% endif %}</span>
+        {{ msg }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon">DX</div>
+          <span class="gradient-text">DJIB Exchange</span>
+        </div>
+        <p>{{ t.footer_desc }}</p>
+      </div>
+      <div class="footer-col">
+        <h4>{{ t.footer_exchange }}</h4>
+        <ul>
+          <li><a href="{% url 'wallet_detail' 'waafi' %}">Via Waafi</a></li>
+          <li><a href="{% url 'wallet_detail' 'cac' %}">Via CAC Bank</a></li>
+          <li><a href="{% url 'wallet_detail' 'dmoney' %}">Via D-Money</a></li>
+          <li><a href="{% url 'wallet_detail' 'saba' %}">Via Saba Bank</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>{{ t.footer_support }}</h4>
+        <ul>
+          <li><a href="{% url 'track_order' %}">{{ t.footer_track }}</a></li>
+          <li><a href="{% url 'home' %}#how-it-works">{{ t.footer_how }}</a></li>
+          <li><a href="{% url 'home' %}#faq">{{ t.footer_faq }}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>{{ t.footer_copy }}</p>
+      <p style="color:var(--text-muted);font-size:0.78rem;">{{ t.footer_note }}</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close">&times;</span>
+  <img src="" alt="Screenshot">
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

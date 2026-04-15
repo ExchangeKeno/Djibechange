@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180">
+  <!-- Blue background -->
+  <rect width="300" height="180" rx="12" fill="#1b3a6e"/>
+  <!-- Gold C arc (stylised) -->
+  <path d="M72,90 A40,40 0 1,1 72,91" fill="none" stroke="#c8a030" stroke-width="22" stroke-linecap="round"
+    stroke-dasharray="210 30"/>
+  <!-- AC letters inside C -->
+  <text x="76" y="82" font-family="Georgia,serif" font-weight="700" font-size="28" fill="#c8a030" letter-spacing="1">AC</text>
+  <!-- Vertical divider -->
+  <line x1="148" y1="52" x2="148" y2="128" stroke="#c8a030" stroke-width="1.5" opacity="0.7"/>
+  <!-- Arabic text -->
+  <text x="165" y="82" font-family="Arial" font-size="15" fill="#c8a030" font-weight="600">بنك كاك الدولي</text>
+  <!-- English text -->
+  <text x="165" y="108" font-family="Georgia,serif" font-size="16" fill="white" font-weight="400" letter-spacing="0.5">International Bank</text>
+</svg>

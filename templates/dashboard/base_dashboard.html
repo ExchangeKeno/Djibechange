@@ -1,0 +1,90 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard — DJIB Exchange{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="particles"></div>
+
+{% if messages %}
+  <div style="position:fixed;top:20px;right:20px;z-index:500;min-width:300px;">
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }}">
+        <span>{% if msg.tags == 'error' %}⚠{% else %}✓{% endif %}</span>
+        {{ msg }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="dash-layout">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <a href="{% url 'home' %}" class="logo">
+      <div class="logo-icon">DX</div>
+      <span class="gradient-text">DJIB Exchange</span>
+    </a>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="{% url 'dashboard' %}" class="{% block nav_overview %}{% endblock %}">
+          <span class="icon">📊</span> Overview
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}" class="{% block nav_requests %}{% endblock %}">
+          <span class="icon">📋</span> All Requests
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=pending" class="{% block nav_pending %}{% endblock %}">
+          <span class="icon">⏳</span> Pending
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=processing">
+          <span class="icon">⚡</span> Processing
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=completed">
+          <span class="icon">✅</span> Completed
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard_requests' %}?status=rejected">
+          <span class="icon">❌</span> Rejected
+        </a>
+      </li>
+    </ul>
+    <div style="padding:0 12px;margin-top:auto;">
+      <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:12px;">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Logged in as</div>
+        <div style="font-size:0.88rem;font-weight:600;">{{ request.user.username }}</div>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <a href="{% url 'home' %}">
+        <span class="icon">🏠</span> View Site
+      </a>
+      <a href="{% url 'dashboard_logout' %}" style="margin-top:4px;">
+        <span class="icon">🚪</span> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+    {% block dashboard_content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

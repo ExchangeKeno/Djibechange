@@ -1,0 +1,148 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Request #{{ exchange.short_ref }} — DJIB Exchange Admin{% endblock %}
+
+{% block dashboard_content %}
+<div class="dash-header">
+  <div>
+    <div class="breadcrumb" style="margin-bottom:8px;">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <span class="sep">/</span>
+      <a href="{% url 'dashboard_requests' %}">Requests</a>
+      <span class="sep">/</span>
+      <span class="ref-code">{{ exchange.short_ref }}</span>
+    </div>
+    <h1>Request <span class="gradient-text">#{{ exchange.short_ref }}</span></h1>
+    <p>Submitted {{ exchange.created_at|date:"d M Y" }} at {{ exchange.created_at|date:"H:i" }}</p>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <span class="badge {{ exchange.status_badge_class }}" style="font-size:0.88rem;padding:8px 16px;">{{ exchange.get_status_display }}</span>
+    <a href="{% url 'dashboard_requests' %}" class="btn btn-outline btn-sm">← Back</a>
+  </div>
+</div>
+
+<div class="detail-grid">
+
+  <!-- Left column -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Transaction info -->
+    <div class="card">
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Transaction Details</h3>
+      <div class="detail-field">
+        <div class="field-label">Payment Method</div>
+        <div class="field-value">
+          <span class="wallet-chip" style="display:inline-flex;">
+            <span class="wallet-dot" style="{% if exchange.wallet == 'waafi' %}background:#1a73e8{% elif exchange.wallet == 'cac' %}background:#c8a93b{% elif exchange.wallet == 'dmoney' %}background:#f5a623{% else %}background:#00897b{% endif %}"></span>
+            {{ exchange.get_wallet_display }}
+          </span>
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Amount Sent</div>
+        <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--text);">{{ exchange.amount_sent }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">To Receive (MoneyGo USD)</div>
+        <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--success);">{{ exchange.amount_to_receive }} USD</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">MoneyGo Wallet ID</div>
+        <div class="field-value" style="color:var(--primary);font-family:monospace;font-size:1rem;">
+          {{ exchange.moneygo_wallet }}
+          <button class="copy-btn" data-copy="{{ exchange.moneygo_wallet }}" style="margin-left:8px;">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- User info -->
+    <div class="card">
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">User Information</h3>
+      <div class="detail-field">
+        <div class="field-label">WhatsApp Number</div>
+        <div class="field-value">
+          {{ exchange.whatsapp_number }}
+          <button class="copy-btn" data-copy="{{ exchange.whatsapp_number }}" style="margin-left:8px;">Copy</button>
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Email Address</div>
+        <div class="field-value">{{ exchange.email }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Reference ID</div>
+        <div class="field-value" style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);">{{ exchange.reference_id }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="field-label">Last Updated</div>
+        <div class="field-value" style="color:var(--text-muted);">{{ exchange.updated_at|date:"d M Y, H:i" }}</div>
+      </div>
+    </div>
+
+    <!-- Screenshot -->
+    <div class="card">
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;">Transaction Screenshot</h3>
+      {% if exchange.screenshot %}
+      <div class="screenshot-viewer" data-lightbox="{{ exchange.screenshot.url }}">
+        <img src="{{ exchange.screenshot.url }}" alt="Transaction screenshot">
+        <div style="padding:10px 16px;font-size:0.78rem;color:var(--text-muted);background:rgba(0,0,0,0.3);">
+          🔍 Click to enlarge
+        </div>
+      </div>
+      <a href="{{ exchange.screenshot.url }}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:12px;">
+        Open Full Image ↗
+      </a>
+      {% else %}
+      <div style="padding:40px;text-align:center;border:2px dashed var(--border);border-radius:10px;color:var(--text-muted);">
+        No screenshot uploaded
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Right column: Update Status -->
+  <div>
+    <div class="card" style="position:sticky;top:24px;">
+      <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:20px;">Update Status</h3>
+
+      <form method="post" class="status-form">
+        {% csrf_token %}
+        <div style="margin-bottom:14px;">
+          <label class="form-label">New Status</label>
+          <select name="status">
+            {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if exchange.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Admin Note (optional)</label>
+          <textarea name="admin_note" placeholder="Add a note for this request (visible to user when tracking)...">{{ exchange.admin_note }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+      </form>
+
+      <div class="divider"></div>
+
+      <!-- Status guide -->
+      <div style="font-size:0.8rem;color:var(--text-muted);">
+        <div style="margin-bottom:8px;font-weight:600;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;">Status Guide</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-pending" style="font-size:0.7rem;">Pending</span> Awaiting review</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-processing" style="font-size:0.7rem;">Processing</span> Sending MoneyGo USD</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-completed" style="font-size:0.7rem;">Completed</span> USD sent successfully</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="badge badge-rejected" style="font-size:0.7rem;">Rejected</span> Request declined</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close">&times;</span>
+  <img src="" alt="Screenshot">
+</div>
+
+{% endblock %}

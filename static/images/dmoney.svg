@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1f3c"/>
+      <stop offset="100%" style="stop-color:#1a3260"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="36" fill="url(#dg)"/>
+  <!-- Yellow banner/rectangle -->
+  <rect x="18" y="72" width="164" height="56" rx="8" fill="#f5a623"/>
+  <!-- Speed lines on left -->
+  <line x1="18" y1="82" x2="0" y2="82" stroke="#f5a623" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+  <line x1="18" y1="100" x2="0" y2="100" stroke="#f5a623" stroke-width="5" stroke-linecap="round" opacity="0.3"/>
+  <line x1="18" y1="118" x2="0" y2="118" stroke="#f5a623" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+  <!-- D-MONEY text on banner -->
+  <text x="100" y="108" font-family="Arial Black, Arial" font-weight="900" font-size="28" fill="#0d1f3c" text-anchor="middle" letter-spacing="-0.5">D-MONEY</text>
+</svg>

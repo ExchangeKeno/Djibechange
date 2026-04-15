@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Green background -->
+  <rect width="200" height="200" rx="0" fill="#2db224"/>
+  <!-- Dark green leaf/teardrop shape bottom-left -->
+  <path d="M0,200 Q30,120 80,110 Q60,160 0,200Z" fill="#1e8a19" opacity="0.7"/>
+  <!-- Big round dot top-right -->
+  <circle cx="148" cy="38" r="22" fill="#5fd655"/>
+  <!-- Inner white circle -->
+  <circle cx="148" cy="38" r="14" fill="#2db224"/>
+  <!-- W letter -->
+  <text x="30" y="148" font-family="Arial Black,Arial" font-weight="900" font-size="90" fill="white" letter-spacing="-6">W</text>
+  <!-- F letter -->
+  <text x="116" y="148" font-family="Arial Black,Arial" font-weight="900" font-size="90" fill="white">F</text>
+</svg>

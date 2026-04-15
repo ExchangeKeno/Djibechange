@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c2185b"/>
+      <stop offset="100%" style="stop-color:#7b1fa2"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="36" fill="url(#mg)"/>
+  <!-- M shape -->
+  <path d="M45,140 L45,70 L100,115 L155,70 L155,140" fill="none" stroke="white" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Go arrow -->
+  <path d="M80,160 L120,160" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M112,154 L120,160 L112,166" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

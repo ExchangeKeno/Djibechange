@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.track_title }} {{ t.track_title_2 }} — DJIB Exchange{% endblock %}
+
+{% block content %}
+<section class="section" style="position:relative;z-index:1;">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">{{ t.track_tag }}</div>
+      <h2>{{ t.track_title }} <span class="gradient-text">{{ t.track_title_2 }}</span></h2>
+      <p>{{ t.track_desc }}</p>
+    </div>
+
+    <div class="track-form" style="margin-top:40px;">
+      <div class="card">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">{{ t.track_ref_label }} <span style="color:var(--danger)">*</span></label>
+            <input type="text" name="reference" class="form-input" placeholder="e.g. A1B2C3D4-..." value="{{ ref }}" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">{{ t.track_btn }}</button>
+        </form>
+      </div>
+
+      {% if exchange %}
+      <div class="card" style="margin-top:24px;border-color:rgba(0,212,255,0.3);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+          <div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">{{ t.track_ref_label }}</div>
+            <div class="ref-code" style="font-size:1rem;">{{ exchange.short_ref }}</div>
+          </div>
+          <span class="badge {{ exchange.status_badge_class }}">{{ exchange.get_status_display }}</span>
+        </div>
+        <table class="details-table">
+          <tr><td>{{ t.track_method }}</td><td>{{ exchange.get_wallet_display }}</td></tr>
+          <tr><td>{{ t.track_sent }}</td><td>{{ exchange.amount_sent }}</td></tr>
+          <tr><td>{{ t.track_receive }}</td><td style="color:var(--success)">{{ exchange.amount_to_receive }} USD</td></tr>
+          <tr><td>{{ t.track_wallet }}</td><td>{{ exchange.moneygo_wallet }}</td></tr>
+          <tr><td>{{ t.track_submitted }}</td><td>{{ exchange.created_at|date:"d M Y, H:i" }}</td></tr>
+          {% if exchange.admin_note %}
+          <tr><td>{{ t.track_note }}</td><td style="color:var(--warning)">{{ exchange.admin_note }}</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ t.wd_title }} {{ wallet.full_name }} — DJIB Exchange{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="position:relative;z-index:1;">
+  <div class="container">
+
+    <div class="breadcrumb">
+      <a href="{% url 'home' %}">{{ t.nav_home }}</a>
+      <span class="sep">/</span>
+      <a href="{% url 'home' %}#wallets">{{ t.wd_breadcrumb_exchange }}</a>
+      <span class="sep">/</span>
+      <span>{{ wallet.full_name }}</span>
+    </div>
+
+    <div class="exchange-layout">
+
+      <!-- Left: Payment Info -->
+      <div class="payment-info-card">
+        <div class="wallet-header">
+          <div class="wallet-logo-lg" style="background:transparent;">
+            {% if wallet.key == 'waafi' %}
+            <img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:64px;height:64px;object-fit:cover;border-radius:10px;">
+            {% elif wallet.key == 'cac' %}
+            <img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:64px;height:64px;object-fit:cover;border-radius:10px;">
+            {% elif wallet.key == 'dmoney' %}
+            <img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:64px;height:64px;object-fit:cover;border-radius:10px;">
+            {% elif wallet.key == 'saba' %}
+            <img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:64px;height:64px;object-fit:cover;border-radius:10px;">
+            {% endif %}
+          </div>
+          <div>
+            <h2 style="font-size:1.15rem;font-weight:800;">{{ wallet.full_name }}</h2>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">{{ t.wd_send_funds }}</p>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">{{ t.wd_account_number }}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="info-value highlight">{{ wallet.account_number }}</span>
+            <button class="copy-btn" data-copy="{{ wallet.account_number }}">Copy</button>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ t.wd_account_holder }}</span>
+          <span class="info-value">{{ wallet.account_holder }}</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <p style="font-size:0.8rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">{{ t.wd_steps }}</p>
+        <ol class="steps-list">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">{{ t.wd_step1 }}</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">{{ t.wd_step2 }}</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">{{ t.wd_step3 }}</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">{{ t.wd_step4 }}</span>
+          </li>
+        </ol>
+
+        <div style="margin-top:20px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:14px 16px;">
+          <p style="font-size:0.8rem;color:#fbbf24;line-height:1.6;">⚠ {{ t.wd_warning }}</p>
+        </div>
+      </div>
+
+      <!-- Right: Exchange Form -->
+      <div class="form-card">
+        <h2>{{ t.wd_form_title }}</h2>
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          <span>⚠</span>
+          <div>
+            {{ t.wd_correct_errors }}
+            {% for field in form %}{% for error in field.errors %}<div>{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <!-- Amount -->
+          <div class="form-group">
+            <label class="form-label" for="id_amount_sent">{{ t.wd_amount_label }} <span>*</span></label>
+            {{ form.amount_sent }}
+            {% if form.amount_sent.errors %}<div class="form-error">⚠ {{ form.amount_sent.errors.0 }}</div>{% endif %}
+          </div>
+
+          <!-- Screenshot -->
+          <div class="form-group">
+            <label class="form-label">{{ t.wd_screenshot_label }} <span>*</span></label>
+            <div class="file-input-wrapper">
+              <div class="file-drop-zone" id="dropzone">
+                <input type="file" name="screenshot" id="id_screenshot" accept="image/*" required class="file-input">
+                <div class="icon">📸</div>
+                <div class="label" id="drop-label">{{ t.wd_drag_drop }} <strong>{{ t.wd_click_upload }}</strong></div>
+                <div class="hint">{{ t.wd_file_hint }}</div>
+              </div>
+              <div class="file-preview" id="file-preview">
+                <img src="" alt="Preview" id="preview-img">
+              </div>
+            </div>
+            {% if form.screenshot.errors %}<div class="form-error">⚠ {{ form.screenshot.errors.0 }}</div>{% endif %}
+          </div>
+
+          <!-- MoneyGo Wallet -->
+          <div class="form-group">
+            <label class="form-label" for="id_moneygo_wallet">{{ t.wd_moneygo_label }} <span>*</span></label>
+            {{ form.moneygo_wallet }}
+            {% if form.moneygo_wallet.errors %}<div class="form-error">⚠ {{ form.moneygo_wallet.errors.0 }}</div>{% endif %}
+            <p class="form-hint">{{ t.wd_moneygo_hint }}</p>
+          </div>
+
+          <div class="divider" style="margin:20px 0;"></div>
+          <p style="font-size:0.78rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;">{{ t.wd_contact_title }}</p>
+
+          <!-- WhatsApp -->
+          <div class="form-group">
+            <label class="form-label" for="id_whatsapp_number">{{ t.wd_whatsapp_label }} <span>*</span></label>
+            {{ form.whatsapp_number }}
+            {% if form.whatsapp_number.errors %}<div class="form-error">⚠ {{ form.whatsapp_number.errors.0 }}</div>{% endif %}
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="id_email">{{ t.wd_email_label }} <span>*</span></label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="form-error">⚠ {{ form.email.errors.0 }}</div>{% endif %}
+          </div>
+
+          <!-- Terms -->
+          <div class="checkbox-group" style="margin-top:8px;">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">{{ t.wd_terms }}</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:12px;">
+            <span>{{ t.wd_submit }}</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('id_screenshot');
+  const filePreview = document.getElementById('file-preview');
+  const previewImg = document.getElementById('preview-img');
+  const dropLabel = document.getElementById('drop-label');
+  if (input) {
+    input.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          previewImg.src = e.target.result;
+          filePreview.style.display = 'block';
+          dropLabel.innerHTML = '<strong>' + this.files[0].name + '</strong>';
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

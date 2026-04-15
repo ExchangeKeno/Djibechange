@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00796b"/>
+      <stop offset="100%" style="stop-color:#00897b"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="36" fill="url(#sg)"/>
+  <!-- Decorative wave lines (calligraphy style) -->
+  <path d="M30,75 Q50,60 70,75 Q90,90 110,75 Q130,60 150,75 Q165,85 170,75" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M30,88 Q55,73 80,88 Q105,103 130,88 Q150,76 170,88" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
+  <!-- Saba text -->
+  <text x="100" y="132" font-family="Georgia, serif" font-weight="700" font-size="36" fill="white" text-anchor="middle" letter-spacing="1">Saba</text>
+  <!-- Subtitle -->
+  <text x="100" y="155" font-family="Arial" font-weight="400" font-size="12" fill="rgba(255,255,255,0.8)" text-anchor="middle" letter-spacing="0.5">African Bank</text>
+</svg>

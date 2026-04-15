@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.success_title }} — DJIB Exchange{% endblock %}
+
+{% block content %}
+<section style="position:relative;z-index:1;padding:60px 0;">
+  <div class="container">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <h2 class="gradient-text">{{ t.success_title }}</h2>
+      <p>{{ t.success_desc }}</p>
+
+      <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">{{ t.success_ref_label }}</div>
+      <div class="ref-box">{{ exchange.short_ref }}</div>
+
+      <table class="details-table">
+        <tr>
+          <td>{{ t.success_method }}</td>
+          <td>{{ exchange.get_wallet_display }}</td>
+        </tr>
+        <tr>
+          <td>{{ t.success_sent }}</td>
+          <td>{{ exchange.amount_sent }}</td>
+        </tr>
+        <tr>
+          <td>{{ t.success_receive }}</td>
+          <td style="color:var(--success);">{{ exchange.amount_to_receive }} USD</td>
+        </tr>
+        <tr>
+          <td>{{ t.success_wallet }}</td>
+          <td>{{ exchange.moneygo_wallet }}</td>
+        </tr>
+        <tr>
+          <td>{{ t.success_status }}</td>
+          <td><span class="badge {{ exchange.status_badge_class }}">{{ exchange.get_status_display }}</span></td>
+        </tr>
+        <tr>
+          <td>{{ t.success_submitted }}</td>
+          <td>{{ exchange.created_at|date:"d M Y, H:i" }}</td>
+        </tr>
+      </table>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="{% url 'track_order' %}" class="btn btn-outline btn-block">{{ t.success_track_btn }}</a>
+        <a href="{% url 'home' %}" class="btn btn-primary btn-block">{{ t.success_new_btn }}</a>
+      </div>
+
+      <div style="margin-top:24px;padding:16px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:10px;">
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">💬 {{ t.success_note }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
