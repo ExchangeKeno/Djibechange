@@ -1,26 +1,18 @@
-{% load static %}<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Créer un compte — DJIB Exchange</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
-  <div style="width:100%;max-width:460px;">
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Créer un compte — DJIB Exchange{% endblock %}
 
-    <!-- Logo -->
-    <a href="{% url 'home' %}" class="logo" style="justify-content:center;margin-bottom:36px;display:flex;">
-      <div class="logo-icon">DX</div>
-      <span class="gradient-text" style="font-size:1.5rem;">DJIB Exchange</span>
-    </a>
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
+  <div style="width:100%;max-width:480px;">
 
-    <div class="card" style="padding:36px;">
-      <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:6px;">Créer un compte</h1>
-      <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:28px;">Rejoignez DJIB Exchange pour effectuer vos demandes d'échange.</p>
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:2rem;margin-bottom:8px;">✨</div>
+      <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;">Créer un compte</h1>
+      <p style="color:var(--text-muted);font-size:0.88rem;">Rejoignez DJIB Exchange pour effectuer vos échanges.</p>
+    </div>
+
+    <div class="card" style="padding:32px;">
 
       {% if messages %}
         {% for msg in messages %}
@@ -31,25 +23,25 @@
       <form method="post" novalidate>
         {% csrf_token %}
 
-        <div style="margin-bottom:18px;">
+        <div style="margin-bottom:16px;">
           <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Nom complet</label>
           {{ form.full_name }}
           {% if form.full_name.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.full_name.errors.0 }}</div>{% endif %}
         </div>
 
-        <div style="margin-bottom:18px;">
+        <div style="margin-bottom:16px;">
           <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Numéro de téléphone</label>
           {{ form.phone }}
           {% if form.phone.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.phone.errors.0 }}</div>{% endif %}
         </div>
 
-        <div style="margin-bottom:18px;">
+        <div style="margin-bottom:16px;">
           <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Adresse email</label>
           {{ form.email }}
           {% if form.email.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.email.errors.0 }}</div>{% endif %}
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
           <div>
             <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Mot de passe</label>
             {{ form.password }}
@@ -67,13 +59,16 @@
         </button>
       </form>
 
-      <div style="text-align:center;margin-top:20px;font-size:0.85rem;color:var(--text-muted);">
+      <div style="text-align:center;margin-top:18px;font-size:0.85rem;color:var(--text-muted);">
         Déjà un compte ?
         <a href="{% url 'user_login' %}" style="color:var(--primary);font-weight:600;">Se connecter</a>
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:16px;">
+      <a href="{% url 'home' %}" style="font-size:0.82rem;color:var(--text-muted);">← Retour à l'accueil</a>
+    </div>
+
   </div>
 </div>
-</body>
-</html>
+{% endblock %}
