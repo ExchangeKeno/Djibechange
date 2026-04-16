@@ -124,20 +124,22 @@
 <div class="card" style="margin-top:20px;">
   <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:18px;">Suivi de la demande</div>
   <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
-    {% for step_key, step_label, step_icon in steps %}
+    {% for step_key, step_label, step_icon, state in steps %}
     <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:120px;">
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
-        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;
-          {% if step_key == exchange.status %}background:var(--primary);color:#000;font-weight:800;
-          {% elif step_reached %}background:rgba(16,185,129,0.2);color:var(--success);
-          {% else %}background:rgba(255,255,255,0.06);color:var(--text-muted);{% endif %}
+        <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.3s;
+          {% if state == 'current' %}background:var(--primary);color:#000;font-weight:800;box-shadow:0 0 16px rgba(0,212,255,0.4);
+          {% elif state == 'done' %}background:rgba(16,185,129,0.2);color:var(--success);border:1px solid rgba(16,185,129,0.3);
+          {% else %}background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border);{% endif %}
         ">{{ step_icon }}</div>
         <div style="font-size:0.72rem;font-weight:600;text-align:center;
-          {% if step_key == exchange.status %}color:var(--primary);{% else %}color:var(--text-muted);{% endif %}
+          {% if state == 'current' %}color:var(--primary);
+          {% elif state == 'done' %}color:var(--success);
+          {% else %}color:var(--text-muted);{% endif %}
         ">{{ step_label }}</div>
       </div>
       {% if not forloop.last %}
-      <div style="height:2px;flex:1;background:{% if step_key == 'pending' and exchange.status != 'pending' %}var(--success){% else %}var(--border){% endif %};margin-bottom:24px;"></div>
+      <div style="height:2px;flex:1;border-radius:2px;background:{% if state == 'done' %}var(--success){% else %}var(--border){% endif %};margin-bottom:24px;transition:background 0.3s;"></div>
       {% endif %}
     </div>
     {% endfor %}

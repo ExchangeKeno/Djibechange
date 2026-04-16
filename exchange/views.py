@@ -180,19 +180,27 @@ def user_request_detail(request, pk):
         return redirect('dashboard')
     exchange = get_object_or_404(ExchangeRequest, pk=pk, user=request.user)
     status_order = ['pending', 'processing', 'completed']
-    current_idx = status_order.index(exchange.status) if exchange.status in status_order else -1
+    current_idx = status_order.index(exchange.status) if exchange.status in status_order else 0
+    # Chaque step : (key, label, icon, state) où state = 'done'|'current'|'upcoming'
     steps = []
     for i, (key, label, icon) in enumerate([
-        ('pending',    'En attente',   '⏳'),
-        ('processing', 'En traitement','⚡'),
-        ('completed',  'Envoyé',       '✅'),
+        ('pending',    'En attente',    '⏳'),
+        ('processing', 'En traitement', '⚡'),
+        ('completed',  'Envoyé',        '✅'),
     ]):
-        steps.append((key, label, icon))
+        if exchange.status == 'rejected':
+            state = 'done' if i == 0 else 'upcoming'
+        elif i < current_idx:
+            state = 'done'
+        elif i == current_idx:
+            state = 'current'
+        else:
+            state = 'upcoming'
+        steps.append((key, label, icon, state))
     return render(request, 'user/request_detail.html', {
         'exchange': exchange,
         'wallets': WALLETS,
         'steps': steps,
-        'step_reached': current_idx,
     })
 
 
