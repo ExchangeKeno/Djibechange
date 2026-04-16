@@ -14,13 +14,14 @@ import json
 # ── Pages publiques ────────────────────────────────────────────────────────────
 
 def home(request):
-    # Erreurs venant des formulaires auth sur la homepage
-    reg_errors = request.session.pop('reg_errors', None)
-    reg_data   = request.session.pop('reg_data', {})
+    reg_errors  = request.session.pop('reg_errors', None)
+    reg_data    = request.session.pop('reg_data', {})
     login_error = request.session.pop('login_error', None)
+    wallets_list = [(k, v['full_name']) for k, v in WALLETS.items()]
     context = {
         'wallets': [{'key': k, **v} for k, v in WALLETS.items()],
         'wallets_dict': WALLETS,
+        'wallets_list': wallets_list,
         'exchange_rate': EXCHANGE_RATE,
         'min_amount': MIN_AMOUNT,
         'max_amount': MAX_AMOUNT,
