@@ -5,140 +5,25 @@
 
 {% block content %}
 
-<!-- ═══════════════════ HERO + AUTH ═══════════════════ -->
-{% if not user.is_authenticated %}
-<section class="section" style="padding: 64px 0;">
-  <div class="container">
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:60px; align-items:center;">
-
-      <!-- Texte gauche -->
-      <div>
-        <div class="hero-badge" style="margin-bottom:20px;">
-          <span class="dot"></span> {{ t.hero_badge }}
-        </div>
-        <h1 style="font-size:clamp(2rem,4vw,3rem); line-height:1.15; margin-bottom:20px;">
-          {{ t.hero_title_1 }}<br>
-          <span class="gradient-text">{{ t.hero_title_2 }}</span>
-        </h1>
-        <p style="color:var(--text-muted); font-size:1rem; line-height:1.7; margin-bottom:32px;">{{ t.hero_desc }}</p>
-        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:36px;">
-          <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted);">
-            <span style="color:var(--success);">✓</span> Inscription gratuite
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted);">
-            <span style="color:var(--success);">✓</span> Paiement en moins de 10 min
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted);">
-            <span style="color:var(--success);">✓</span> Suivi en temps réel
-          </div>
-        </div>
-        <!-- Stats -->
-        <div style="display:flex; gap:28px; flex-wrap:wrap;">
-          <div>
-            <div style="font-size:1.6rem; font-weight:800; color:var(--primary);">500+</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">{{ t.stat_exchanges }}</div>
-          </div>
-          <div>
-            <div style="font-size:1.6rem; font-weight:800; color:var(--success);">&lt;10 min</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">{{ t.stat_time }}</div>
-          </div>
-          <div>
-            <div style="font-size:1.6rem; font-weight:800; color:var(--warning);">24/7</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">{{ t.stat_avail }}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Formulaires droite -->
-      <div>
-        <!-- Onglets -->
-        <div style="display:flex; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:20px;">
-          <button onclick="showTab('register')" id="tab-register"
-            style="flex:1; padding:10px; border-radius:10px; border:none; cursor:pointer; font-weight:700; font-size:0.88rem; transition:all 0.2s; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff;">
-            ✨ S'inscrire
-          </button>
-          <button onclick="showTab('login')" id="tab-login"
-            style="flex:1; padding:10px; border-radius:10px; border:none; cursor:pointer; font-weight:700; font-size:0.88rem; transition:all 0.2s; background:transparent; color:var(--text-muted);">
-            🔑 Se connecter
-          </button>
-        </div>
-
-        <!-- Formulaire Inscription -->
-        <div id="form-register" style="background:var(--dark-card); border:1px solid var(--border); border-radius:18px; padding:28px;">
-          {% if reg_errors %}
-          <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.82rem; color:#fca5a5;">
-            {% for err in reg_errors %}{{ err }}{% if not forloop.last %} — {% endif %}{% endfor %}
-          </div>
-          {% endif %}
-          <form method="post" action="{% url 'user_register' %}" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="from_home" value="1">
-            <div style="margin-bottom:12px;">
-              <input type="text" name="full_name" class="form-input" placeholder="Nom complet" value="{{ reg_data.full_name|default:'' }}" required>
-            </div>
-            <div style="margin-bottom:12px;">
-              <input type="tel" name="phone" class="form-input" placeholder="Téléphone (+253 77...)" value="{{ reg_data.phone|default:'' }}" required>
-            </div>
-            <div style="margin-bottom:12px;">
-              <input type="email" name="email" class="form-input" placeholder="Adresse email" value="{{ reg_data.email|default:'' }}" required>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
-              <input type="password" name="password" class="form-input" placeholder="Mot de passe" required>
-              <input type="password" name="password_confirm" class="form-input" placeholder="Confirmer" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block" style="padding:13px; font-size:0.95rem; font-weight:700;">
-              Créer mon compte →
-            </button>
-          </form>
-          <p style="text-align:center; margin-top:14px; font-size:0.82rem; color:var(--text-muted);">
-            Déjà un compte ? <a href="#" onclick="showTab('login'); return false;" style="color:var(--primary); font-weight:600;">Se connecter</a>
-          </p>
-        </div>
-
-        <!-- Formulaire Connexion -->
-        <div id="form-login" style="display:none; background:var(--dark-card); border:1px solid var(--border); border-radius:18px; padding:28px;">
-          {% if login_error %}
-          <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.82rem; color:#fca5a5;">
-            {{ login_error }}
-          </div>
-          {% endif %}
-          <form method="post" action="{% url 'user_login' %}" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="from_home" value="1">
-            <div style="margin-bottom:12px;">
-              <input type="email" name="email" class="form-input" placeholder="Adresse email" required>
-            </div>
-            <div style="margin-bottom:18px;">
-              <input type="password" name="password" class="form-input" placeholder="Mot de passe" required>
-            </div>
-            <button type="submit" class="btn btn-block" style="padding:13px; font-size:0.95rem; font-weight:700; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.35); color:var(--accent-light);">
-              Se connecter →
-            </button>
-          </form>
-          <p style="text-align:center; margin-top:14px; font-size:0.82rem; color:var(--text-muted);">
-            Pas de compte ? <a href="#" onclick="showTab('register'); return false;" style="color:var(--primary); font-weight:600;">S'inscrire</a>
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-{% else %}
-<!-- Utilisateur connecté : hero classique -->
+<!-- ═══════════════════ HERO ═══════════════════ -->
 <section class="hero">
   <div class="container">
     <div class="hero-badge"><span class="dot"></span>{{ t.hero_badge }}</div>
     <h1>{{ t.hero_title_1 }}<br><span class="gradient-text">{{ t.hero_title_2 }}</span></h1>
     <p>{{ t.hero_desc }}</p>
     <div class="hero-actions">
-      <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
-      <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-lg">Mon tableau de bord</a>
+      {% if user.is_authenticated and not user.is_staff %}
+        <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
+        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-lg">Mon tableau de bord</a>
+      {% else %}
+        <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg">S'inscrire gratuitement</a>
+        <a href="{% url 'user_login' %}" class="btn btn-outline btn-lg">Se connecter</a>
+      {% endif %}
     </div>
   </div>
 </section>
 
+{% if user.is_authenticated and not user.is_staff %}
 <!-- Bandeau bienvenue -->
 <div style="position:relative;z-index:1;background:rgba(16,185,129,0.05);border-bottom:1px solid rgba(16,185,129,0.15);padding:16px 0;">
   <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -146,22 +31,9 @@
       <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:0.9rem;">
         {{ user.first_name|first|upper }}
       </div>
-      <div>
-        <div style="font-weight:700;font-size:0.92rem;">Bonjour {{ user.first_name }} — choisissez un portefeuille pour faire une demande</div>
-      </div>
+      <div style="font-weight:700;font-size:0.92rem;">Bonjour {{ user.first_name }} — choisissez un portefeuille pour faire une demande</div>
     </div>
     <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">Mon espace →</a>
-  </div>
-</div>
-{% endif %}
-
-<!-- Stats bar (si connecté seulement, sinon déjà dans le hero) -->
-{% if user.is_authenticated and not user.is_staff %}
-<div style="position:relative;z-index:1;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);">
-  <div class="container" style="padding:20px;display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;text-align:center;">
-    <div><div style="font-size:1.6rem;font-weight:800;color:var(--primary)">500+</div><div style="font-size:0.8rem;color:var(--text-muted)">{{ t.stat_exchanges }}</div></div>
-    <div><div style="font-size:1.6rem;font-weight:800;color:var(--success)">&lt;10min</div><div style="font-size:0.8rem;color:var(--text-muted)">{{ t.stat_time }}</div></div>
-    <div><div style="font-size:1.6rem;font-weight:800;color:var(--warning)">24/7</div><div style="font-size:0.8rem;color:var(--text-muted)">{{ t.stat_avail }}</div></div>
   </div>
 </div>
 {% endif %}
@@ -198,19 +70,32 @@
           <div class="wallet-arrow">Échanger via Saba <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
       {% else %}
-        {% for key, label in wallets_list %}
-        <a href="#" onclick="showTab('register');document.getElementById('form-register').scrollIntoView({behavior:'smooth'});return false;" class="wallet-card fade-up">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/' %}{{ key }}.webp" alt="{{ label }}" style="width:100%;height:100%;object-fit:cover;"></a>
-          <h3>{{ label }}</h3>
-          <div class="wallet-arrow" style="color:var(--text-muted);">Créer un compte pour échanger <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dwaafi" class="wallet-card fade-up" style="animation-delay:0ms">
+          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
+          <h3>Waafi Mobile Money</h3><p>{{ t.wallet_desc_waafi }}</p>
+          <div class="wallet-arrow">Échanger via Waafi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        {% endfor %}
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dcac" class="wallet-card fade-up" style="animation-delay:100ms">
+          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
+          <h3>CAC International Bank</h3><p>{{ t.wallet_desc_cac }}</p>
+          <div class="wallet-arrow">Échanger via CAC <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </a>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Ddmoney" class="wallet-card fade-up" style="animation-delay:200ms">
+          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
+          <h3>D-Money Transfer</h3><p>{{ t.wallet_desc_dmoney }}</p>
+          <div class="wallet-arrow">Échanger via D-Money <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </a>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dsaba" class="wallet-card fade-up" style="animation-delay:300ms">
+          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
+          <h3>Saba African Bank</h3><p>{{ t.wallet_desc_saba }}</p>
+          <div class="wallet-arrow">Échanger via Saba <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </a>
       {% endif %}
     </div>
 
     {% if not user.is_authenticated %}
     <p style="text-align:center;margin-top:20px;color:var(--text-muted);font-size:0.88rem;">
-      <a href="#" onclick="showTab('register');window.scrollTo({top:0,behavior:'smooth'});return false;" style="color:var(--primary);font-weight:600;">Créez un compte gratuit</a> pour soumettre une demande d'échange.
+      <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">Créez un compte gratuit</a> pour soumettre une demande d'échange.
     </p>
     {% endif %}
   </div>
@@ -309,28 +194,5 @@
     </div>
   </div>
 </section>
-
-<script>
-function showTab(tab) {
-  const isReg = tab === 'register';
-  document.getElementById('form-register').style.display = isReg ? 'block' : 'none';
-  document.getElementById('form-login').style.display   = isReg ? 'none'  : 'block';
-  const tReg = document.getElementById('tab-register');
-  const tLog = document.getElementById('tab-login');
-  if (!tReg || !tLog) return;
-  if (isReg) {
-    tReg.style.background = 'linear-gradient(135deg,var(--primary),var(--accent))';
-    tReg.style.color = '#fff';
-    tLog.style.background = 'transparent';
-    tLog.style.color = 'var(--text-muted)';
-  } else {
-    tLog.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-light))';
-    tLog.style.color = '#fff';
-    tReg.style.background = 'transparent';
-    tReg.style.color = 'var(--text-muted)';
-  }
-}
-{% if login_error %}showTab('login');{% endif %}
-</script>
 
 {% endblock %}
