@@ -18,7 +18,11 @@
     </h1>
     <p>{{ t.hero_desc }}</p>
     <div class="hero-actions">
-      <a href="#wallets" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
+      {% if user.is_authenticated and not user.is_staff %}
+        <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
+      {% else %}
+        <a href="#auth-section" class="btn btn-primary btn-lg">Commencer maintenant</a>
+      {% endif %}
       <a href="{% url 'track_order' %}" class="btn btn-outline btn-lg">{{ t.hero_btn_track }}</a>
     </div>
   </div>
@@ -46,6 +50,113 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION AUTH — visible uniquement si non connecté
+     ═══════════════════════════════════════════════════════════ -->
+{% if not user.is_authenticated %}
+<section id="auth-section" style="position:relative;z-index:1;padding:72px 0;background:rgba(0,212,255,0.02);border-bottom:1px solid var(--border);">
+  <div class="container" style="max-width:960px;">
+
+    <div class="section-header" style="margin-bottom:40px;">
+      <div class="section-tag">Votre compte</div>
+      <h2>Créez votre compte pour <span class="gradient-text">échanger</span></h2>
+      <p style="color:var(--text-muted);">Inscrivez-vous gratuitement ou connectez-vous pour soumettre et suivre vos demandes d'échange.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
+
+      <!-- ── Inscription ── -->
+      <div style="background:var(--dark-card);border:1px solid var(--border);border-radius:20px;padding:32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent-light));border-radius:20px 20px 0 0;"></div>
+        <div style="margin-bottom:22px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">✨</div>
+          <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:4px;">Créer un compte</h3>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Rejoignez DJIB Exchange en quelques secondes.</p>
+        </div>
+
+        {% if register_errors %}
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:#fca5a5;">
+          {% for err in register_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'user_register' %}" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="from_home" value="1">
+          <div style="margin-bottom:14px;">
+            <input type="text" name="full_name" class="form-input" placeholder="Nom complet" value="{{ reg_data.full_name|default:'' }}" required>
+          </div>
+          <div style="margin-bottom:14px;">
+            <input type="text" name="phone" class="form-input" placeholder="Téléphone (+253 77...)" value="{{ reg_data.phone|default:'' }}" required>
+          </div>
+          <div style="margin-bottom:14px;">
+            <input type="email" name="email" class="form-input" placeholder="Email" value="{{ reg_data.email|default:'' }}" required>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+            <input type="password" name="password" class="form-input" placeholder="Mot de passe" required>
+            <input type="password" name="password_confirm" class="form-input" placeholder="Confirmer" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" style="padding:13px;font-weight:700;">
+            Créer mon compte →
+          </button>
+        </form>
+      </div>
+
+      <!-- ── Connexion ── -->
+      <div style="background:var(--dark-card);border:1px solid var(--border);border-radius:20px;padding:32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:20px 20px 0 0;"></div>
+        <div style="margin-bottom:22px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">🔑</div>
+          <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:4px;">Se connecter</h3>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Déjà un compte ? Accédez à votre espace.</p>
+        </div>
+
+        {% if login_error %}
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:#fca5a5;">
+          {{ login_error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'user_login' %}" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="from_home" value="1">
+          <div style="margin-bottom:14px;">
+            <input type="email" name="email" class="form-input" placeholder="Adresse email" required>
+          </div>
+          <div style="margin-bottom:20px;">
+            <input type="password" name="password" class="form-input" placeholder="Mot de passe" required>
+          </div>
+          <button type="submit" class="btn btn-block" style="padding:13px;font-weight:700;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:var(--accent-light);">
+            Se connecter →
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     Si connecté : message de bienvenue
+     ═══════════════════════════════════════════════════════════ -->
+{% if user.is_authenticated and not user.is_staff %}
+<div style="position:relative;z-index:1;background:rgba(16,185,129,0.05);border-bottom:1px solid rgba(16,185,129,0.15);padding:20px 0;">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;">
+        {{ user.first_name|first|upper }}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:0.95rem;">Bonjour, {{ user.first_name }} !</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">Choisissez un portefeuille ci-dessous pour faire une demande.</div>
+      </div>
+    </div>
+    <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">Mon tableau de bord →</a>
+  </div>
+</div>
+{% endif %}
+
 <!-- Wallets -->
 <section class="section" id="wallets">
   <div class="container">
@@ -57,55 +168,43 @@
 
     <div class="wallets-grid">
 
-      <!-- Waafi -->
-      <a href="{% url 'wallet_detail' 'waafi' %}" class="wallet-card fade-up" style="animation-delay:0ms">
-        <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;">
-          <img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <h3>Waafi Mobile Money</h3>
-        <p>{{ t.wallet_desc_waafi }}</p>
-        <div class="wallet-arrow">{{ t.wallet_cta }} Waafi
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- CAC -->
-      <a href="{% url 'wallet_detail' 'cac' %}" class="wallet-card fade-up" style="animation-delay:100ms">
-        <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;">
-          <img src="{% static 'images/cac.webp' %}" alt="CAC International Bank" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <h3>CAC International Bank</h3>
-        <p>{{ t.wallet_desc_cac }}</p>
-        <div class="wallet-arrow">{{ t.wallet_cta }} CAC
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- D-Money -->
-      <a href="{% url 'wallet_detail' 'dmoney' %}" class="wallet-card fade-up" style="animation-delay:200ms">
-        <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;">
-          <img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <h3>D-Money Transfer</h3>
-        <p>{{ t.wallet_desc_dmoney }}</p>
-        <div class="wallet-arrow">{{ t.wallet_cta }} D-Money
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- Saba -->
-      <a href="{% url 'wallet_detail' 'saba' %}" class="wallet-card fade-up" style="animation-delay:300ms">
-        <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;">
-          <img src="{% static 'images/saba.webp' %}" alt="Saba African Bank" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-        <h3>Saba African Bank</h3>
-        <p>{{ t.wallet_desc_saba }}</p>
-        <div class="wallet-arrow">{{ t.wallet_cta }} Saba
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </a>
+      {% for wallet_key, wallet_info in wallets_dict.items %}
+      {% if user.is_authenticated and not user.is_staff %}
+        <a href="{% url 'user_new_request' %}?wallet={{ wallet_key }}" class="wallet-card fade-up">
+      {% else %}
+        <a href="#auth-section" class="wallet-card fade-up" onclick="highlightAuth()">
+      {% endif %}
+          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;">
+            <img src="{% static 'images/'%}{{ wallet_key }}.webp" alt="{{ wallet_info.name }}" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <h3>{{ wallet_info.name }}</h3>
+          <p>{{ wallet_info.desc }}</p>
+          <div class="wallet-arrow">
+            {% if user.is_authenticated and not user.is_staff %}
+              {{ t.wallet_cta }} {{ wallet_info.name }}
+            {% else %}
+              Se connecter pour échanger
+            {% endif %}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+      {% empty %}
+        <!-- fallback statique si context manquant -->
+        {% for wk, wname, wdesc in wallet_list_fallback %}
+        <a href="#auth-section" class="wallet-card fade-up"><h3>{{ wname }}</h3></a>
+        {% endfor %}
+      {% endfor %}
 
     </div>
+
+    {% if not user.is_authenticated %}
+    <div style="text-align:center;margin-top:24px;">
+      <p style="color:var(--text-muted);font-size:0.88rem;">
+        Vous devez <a href="#auth-section" onclick="highlightAuth()" style="color:var(--primary);font-weight:600;">créer un compte ou vous connecter</a> pour soumettre une demande d'échange.
+      </p>
+    </div>
+    {% endif %}
+
   </div>
 </section>
 
@@ -228,5 +327,15 @@
     </div>
   </div>
 </section>
+
+<script>
+function highlightAuth() {
+  const s = document.getElementById('auth-section');
+  if (!s) return;
+  s.style.transition = 'box-shadow 0.3s';
+  s.style.boxShadow = '0 0 0 3px rgba(0,212,255,0.4)';
+  setTimeout(() => s.style.boxShadow = '', 1500);
+}
+</script>
 
 {% endblock %}

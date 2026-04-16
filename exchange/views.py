@@ -14,12 +14,19 @@ import json
 # ── Pages publiques ────────────────────────────────────────────────────────────
 
 def home(request):
-    wallets = [{'key': k, **v} for k, v in WALLETS.items()]
+    # Erreurs venant des formulaires auth sur la homepage
+    reg_errors = request.session.pop('reg_errors', None)
+    reg_data   = request.session.pop('reg_data', {})
+    login_error = request.session.pop('login_error', None)
     context = {
-        'wallets': wallets,
+        'wallets': [{'key': k, **v} for k, v in WALLETS.items()],
+        'wallets_dict': WALLETS,
         'exchange_rate': EXCHANGE_RATE,
         'min_amount': MIN_AMOUNT,
         'max_amount': MAX_AMOUNT,
+        'reg_errors': reg_errors,
+        'reg_data': reg_data,
+        'login_error': login_error,
     }
     return render(request, 'exchange/home.html', context)
 
@@ -76,6 +83,7 @@ def set_language(request):
 def user_register(request):
     if request.user.is_authenticated and not request.user.is_staff:
         return redirect('user_dashboard')
+    from_home = request.POST.get('from_home') == '1'
     form = UserRegistrationForm()
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -84,6 +92,18 @@ def user_register(request):
             login(request, user)
             messages.success(request, f'Bienvenue {user.first_name} ! Votre compte a été créé.')
             return redirect('user_dashboard')
+        if from_home:
+            # Retourner à la home avec les erreurs dans la session
+            errors = []
+            for field_errors in form.errors.values():
+                errors.extend(field_errors)
+            request.session['reg_errors'] = errors
+            request.session['reg_data'] = {
+                'full_name': request.POST.get('full_name', ''),
+                'phone': request.POST.get('phone', ''),
+                'email': request.POST.get('email', ''),
+            }
+            return redirect('/#auth-section')
     return render(request, 'user/register.html', {'form': form})
 
 
@@ -92,6 +112,8 @@ def user_login(request):
         if request.user.is_staff:
             return redirect('dashboard')
         return redirect('user_dashboard')
+    next_url = request.GET.get('next', '') or request.POST.get('next', '')
+    from_home = request.POST.get('from_home') == '1'
     if request.method == 'POST':
         email = request.POST.get('email', '').lower().strip()
         password = request.POST.get('password', '')
@@ -100,9 +122,14 @@ def user_login(request):
             login(request, user)
             if user.is_staff:
                 return redirect('dashboard')
+            if next_url:
+                return redirect(next_url)
             return redirect('user_dashboard')
+        if from_home:
+            request.session['login_error'] = 'Email ou mot de passe incorrect.'
+            return redirect('/#auth-section')
         messages.error(request, 'Email ou mot de passe incorrect.')
-    return render(request, 'user/login.html')
+    return render(request, 'user/login.html', {'next': next_url})
 
 
 def user_logout(request):

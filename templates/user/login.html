@@ -31,6 +31,7 @@
 
       <form method="post" novalidate>
         {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
         <div style="margin-bottom:18px;">
           <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Adresse email</label>
