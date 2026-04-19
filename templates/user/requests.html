@@ -53,9 +53,6 @@
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
           <span style="font-size:0.9rem;">
             <strong>{{ req.amount_sent }} DJF</strong>
-            <span style="color:var(--text-muted);font-size:0.8rem;"> → </span>
-            <strong style="color:var(--success);">{{ req.amount_to_receive }} USD</strong>
-            <span style="color:var(--text-muted);font-size:0.78rem;"> MoneyGo</span>
           </span>
           <span class="status-pill sp-{{ req.status }}">
             {% if req.status == 'pending' %}⏳ En attente

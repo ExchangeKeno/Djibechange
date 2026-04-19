@@ -52,7 +52,7 @@
     <div class="sb-sub">
       {% if exchange.status == 'pending' %}Votre demande a bien été reçue. L'admin va la traiter prochainement.
       {% elif exchange.status == 'processing' %}L'admin est en train de traiter votre paiement MoneyGo.
-      {% elif exchange.status == 'completed' %}{{ exchange.amount_to_receive }} USD ont été envoyés sur votre wallet MoneyGo.
+      {% elif exchange.status == 'completed' %}Votre paiement MoneyGo a été envoyé avec succès.
       {% else %}Votre demande a été refusée.{% if exchange.admin_note %} Raison : {{ exchange.admin_note }}{% endif %}{% endif %}
     </div>
   </div>
@@ -82,10 +82,6 @@
     <div class="detail-field">
       <div class="field-label">Montant envoyé</div>
       <div class="field-value" style="font-size:1.3rem;font-weight:800;">{{ exchange.amount_sent }} DJF</div>
-    </div>
-    <div class="detail-field">
-      <div class="field-label">À recevoir (MoneyGo)</div>
-      <div class="field-value" style="font-size:1.3rem;font-weight:800;color:var(--success);">{{ exchange.amount_to_receive }} USD</div>
     </div>
     <div class="detail-field">
       <div class="field-label">MoneyGo Wallet ID</div>
