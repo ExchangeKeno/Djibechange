@@ -39,18 +39,38 @@
           <button type="submit" class="lang-btn" title="Passer en français">🇫🇷 FR</button>
         {% endif %}
       </form>
+      <!-- Desktop auth buttons (hidden on mobile via JS) -->
       {% if user.is_authenticated and not user.is_staff %}
-        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">Mon compte</a>
+        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">Mon compte</a>
       {% elif not user.is_authenticated %}
-        <a href="{% url 'user_login' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">Connexion</a>
-        <a href="{% url 'user_register' %}" class="btn btn-primary btn-sm" style="border-radius:50px;">S'inscrire</a>
+        <a href="{% url 'user_login' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">Connexion</a>
+        <a href="{% url 'user_register' %}" class="btn btn-primary btn-sm nav-desktop-btn" style="border-radius:50px;">S'inscrire</a>
       {% endif %}
+      <!-- Hamburger -->
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
 
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="{% url 'home' %}">{{ t.nav_home }}</a>
+  <a href="{% url 'home' %}#how-it-works">{{ t.nav_how }}</a>
+  <a href="{% url 'track_order' %}">{{ t.nav_track }}</a>
+  <div class="divider-line"></div>
+  {% if user.is_authenticated and not user.is_staff %}
+    <a href="{% url 'user_dashboard' %}" class="btn btn-outline">Mon compte</a>
+    <a href="{% url 'user_logout' %}" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">Se déconnecter</a>
+  {% elif not user.is_authenticated %}
+    <a href="{% url 'user_login' %}" class="btn btn-outline">Connexion</a>
+    <a href="{% url 'user_register' %}" class="btn btn-primary">S'inscrire gratuitement</a>
+  {% endif %}
+</div>
+
 {% if messages %}
-  <div style="position:fixed;top:84px;right:20px;z-index:200;min-width:300px;">
+  <div style="position:fixed;top:72px;right:12px;z-index:200;min-width:280px;max-width:90vw;">
     {% for msg in messages %}
       <div class="alert alert-{{ msg.tags|default:'info' }}">
         <span>{% if msg.tags == 'error' %}⚠{% else %}✓{% endif %}</span>
@@ -105,6 +125,38 @@
 </div>
 
 <script src="{% static 'js/main.js' %}"></script>
+
+<!-- Hamburger menu logic -->
+<script>
+(function(){
+  var btn = document.getElementById('nav-hamburger');
+  var menu = document.getElementById('mobile-menu');
+  var desktopBtns = document.querySelectorAll('.nav-desktop-btn');
+
+  function updateLayout(){
+    var isMobile = window.innerWidth <= 768;
+    desktopBtns.forEach(function(el){ el.style.display = isMobile ? 'none' : ''; });
+  }
+  updateLayout();
+  window.addEventListener('resize', updateLayout);
+
+  if(btn && menu){
+    btn.addEventListener('click', function(){
+      btn.classList.toggle('open');
+      menu.classList.toggle('open');
+      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+    });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        btn.classList.remove('open');
+        menu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+})();
+</script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>
