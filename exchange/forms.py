@@ -107,8 +107,8 @@ class UserExchangeForm(forms.ModelForm):
             allowed_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
             if hasattr(screenshot, 'content_type') and screenshot.content_type not in allowed_types:
                 raise forms.ValidationError('Seuls les formats PNG, JPG et WebP sont acceptés.')
-            if screenshot.size > 10 * 1024 * 1024:
-                raise forms.ValidationError('L\'image doit faire moins de 10 Mo.')
+            if screenshot.size > 70 * 1024 * 1024:
+                raise forms.ValidationError('L\'image doit faire moins de 70 Mo.')
         return screenshot
 
 
@@ -154,8 +154,8 @@ class ExchangeForm(forms.ModelForm):
             allowed_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
             if hasattr(screenshot, 'content_type') and screenshot.content_type not in allowed_types:
                 raise forms.ValidationError('Only PNG, JPG, and WebP images are accepted.')
-            if screenshot.size > 10 * 1024 * 1024:
-                raise forms.ValidationError('Image must be smaller than 10 MB.')
+            if screenshot.size > 70 * 1024 * 1024:
+                raise forms.ValidationError('Image must be smaller than 70 MB.')
         return screenshot
 
     def clean_whatsapp_number(self):
