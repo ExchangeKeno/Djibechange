@@ -14,45 +14,80 @@
   .wallet-btn {
     display: flex; flex-direction: column; align-items: center; gap: 10px;
     padding: 18px 10px; border-radius: 14px; border: 2px solid var(--border);
-    background: var(--dark-card); cursor: pointer; transition: all 0.2s;
+    background: var(--dark-card2); cursor: pointer; transition: all 0.2s;
     text-decoration: none;
   }
   .wallet-btn:hover { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.04); }
   .wallet-btn.selected {
     border-color: var(--primary); background: rgba(0,212,255,0.07);
-    box-shadow: 0 0 24px rgba(0,212,255,0.15);
+    box-shadow: 0 0 24px rgba(0,212,255,0.12);
   }
   .wallet-btn-img {
     width: 56px; height: 56px; border-radius: 14px; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .wallet-btn-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+  .wallet-btn-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; display: block; }
   .wallet-btn-name { font-size: 0.82rem; font-weight: 600; text-align: center; color: var(--text); }
 
-  /* Info wallet sélectionné */
+  /* Info wallet */
   .wallet-info-card {
-    display: none;
-    background: rgba(0,212,255,0.04);
-    border: 1px solid rgba(0,212,255,0.2);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 20px;
+    display: none; background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.2); border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 20px;
   }
   .wallet-info-card.visible { display: block; }
   .wallet-info-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 12px;
   }
   .wallet-info-row:last-child { border-bottom: none; }
   .wir-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
   .wir-value { font-size: 0.9rem; font-weight: 700; color: var(--text); text-align: right; }
   .wir-value.highlight { color: var(--primary); font-size: 1rem; letter-spacing: 0.5px; }
 
+  /* Zone upload screenshot */
+  .upload-zone {
+    border: 2px dashed rgba(0,212,255,0.3);
+    border-radius: 14px; padding: 32px 20px;
+    text-align: center; cursor: pointer;
+    transition: all 0.25s; background: rgba(0,212,255,0.02);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--primary); background: rgba(0,212,255,0.06);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-zone .uz-icon { font-size: 2.4rem; margin-bottom: 10px; display: block; }
+  .upload-zone .uz-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .upload-zone .uz-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* Prévisualisation */
+  .upload-preview {
+    display: none; margin-top: 14px; position: relative;
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+  .upload-preview img {
+    width: 100%; max-height: 280px; object-fit: cover; display: block;
+  }
+  .upload-preview-name {
+    background: rgba(10,14,26,0.85); padding: 8px 14px;
+    font-size: 0.78rem; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .upload-remove {
+    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171; border-radius: 6px; padding: 3px 10px;
+    font-size: 0.75rem; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  }
+
   @media (max-width: 500px) {
     .wallet-select-grid { grid-template-columns: repeat(2, 1fr); }
     .wallet-info-row { flex-direction: column; align-items: flex-start; gap: 2px; }
     .wir-value { text-align: left; }
+    .upload-zone { padding: 24px 16px; }
   }
 </style>
 
@@ -74,7 +109,7 @@
         data-wallet="{{ key }}" onclick="selectWallet('{{ key }}', this)">
         <div class="wallet-btn-img">
           <img src="{% static 'images/' %}{{ key }}.webp" alt="{{ info.name }}"
-               onerror="this.parentElement.innerHTML='<div style=\'width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,{{ info.color }},#0a0e1a);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:0.9rem;\'>{{ info.name|slice:':2'|upper }}</div>'">
+               onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,{{ info.color }},#0a0e1a)';this.parentElement.innerHTML='<span style=\'font-weight:900;color:#fff;font-size:0.9rem;\'>{{ info.name|truncatechars:3|upper }}</span>'">
         </div>
         <div class="wallet-btn-name">{{ info.name }}</div>
       </button>
@@ -107,41 +142,65 @@
 
   <!-- Étape 2 : Formulaire -->
   <div class="card" id="form-section" style="{% if not wallet_key %}display:none;{% endif %}">
-    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:20px;">
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:22px;">
       Étape 2 — Détails de la transaction
     </div>
 
-    <form method="post" enctype="multipart/form-data" novalidate>
+    <form method="post" enctype="multipart/form-data" novalidate id="request-form">
       {% csrf_token %}
       <input type="hidden" name="wallet_key" id="wallet_key_input" value="{{ wallet_key }}">
 
-      <!-- Montant -->
+      <!-- 1. Screenshot en premier -->
+      <div style="margin-bottom:22px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">
+          Capture d'écran de la transaction <span style="color:var(--danger);">*</span>
+        </label>
+
+        <div class="upload-zone" id="upload-zone">
+          <!-- Input fichier réel -->
+          <input type="file" name="screenshot" id="screenshot-input"
+                 accept="image/png,image/jpeg,image/jpg,image/webp"
+                 onchange="handleFileSelect(this)">
+          <span class="uz-icon">📸</span>
+          <div class="uz-title">Appuyez pour ajouter votre capture</div>
+          <div class="uz-sub">PNG, JPG ou WebP — max 70 Mo</div>
+        </div>
+
+        <!-- Prévisualisation -->
+        <div class="upload-preview" id="upload-preview">
+          <img id="preview-img" src="" alt="Aperçu">
+          <div class="upload-preview-name">
+            <span id="preview-filename" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+            <button type="button" class="upload-remove" onclick="removeFile()">Supprimer</button>
+          </div>
+        </div>
+
+        {% if form.screenshot.errors %}
+        <div style="color:var(--danger);font-size:0.78rem;margin-top:6px;">{{ form.screenshot.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <!-- 2. Montant -->
       <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
           Montant envoyé (DJF) <span style="color:var(--danger);">*</span>
         </label>
         {{ form.amount_sent }}
-        {% if form.amount_sent.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.amount_sent.errors.0 }}</div>{% endif %}
+        {% if form.amount_sent.errors %}
+        <div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.amount_sent.errors.0 }}</div>
+        {% endif %}
       </div>
 
-      <!-- MoneyGo ID -->
-      <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;">
+      <!-- 3. MoneyGo ID -->
+      <div style="margin-bottom:28px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
           MoneyGo Wallet ID <span style="color:var(--danger);">*</span>
         </label>
         {{ form.moneygo_wallet }}
-        {% if form.moneygo_wallet.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.moneygo_wallet.errors.0 }}</div>{% endif %}
+        {% if form.moneygo_wallet.errors %}
+        <div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.moneygo_wallet.errors.0 }}</div>
+        {% endif %}
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">Votre identifiant MoneyGo (ex: U123456789)</div>
-      </div>
-
-      <!-- Screenshot -->
-      <div style="margin-bottom:28px;">
-        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;">
-          Capture d'écran de la transaction <span style="color:var(--danger);">*</span>
-        </label>
-        {{ form.screenshot }}
-        {% if form.screenshot.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.screenshot.errors.0 }}</div>{% endif %}
-        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">PNG, JPG ou WebP — max 70 Mo</div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:15px;">
@@ -167,41 +226,77 @@ var WALLETS_DATA = {
   {% endfor %}
 };
 
-// Pre-fill wallet info if wallet already selected on page load
+// Pré-remplir si wallet déjà sélectionné
 {% if wallet_key %}
 (function(){
-  var data = WALLETS_DATA['{{ wallet_key }}'];
-  if(data){
-    document.getElementById('info-account-number').textContent = data.account_number;
-    document.getElementById('info-account-holder').textContent = data.account_holder;
+  var d = WALLETS_DATA['{{ wallet_key }}'];
+  if(d){
+    document.getElementById('info-account-number').textContent = d.account_number;
+    document.getElementById('info-account-holder').textContent = d.account_holder;
   }
 })();
 {% endif %}
 
+// Sélection d'un wallet
 function selectWallet(key, btn) {
-  // Highlight bouton sélectionné
   document.querySelectorAll('.wallet-btn').forEach(function(b){ b.classList.remove('selected'); });
   btn.classList.add('selected');
-
-  // Mettre à jour le champ caché
   document.getElementById('wallet_key_input').value = key;
 
-  // Mettre à jour la carte d'infos wallet
-  var data = WALLETS_DATA[key];
-  if (data) {
-    document.getElementById('info-wallet-name').textContent = data.name;
-    document.getElementById('info-account-number').textContent = data.account_number;
-    document.getElementById('info-account-holder').textContent = data.account_holder;
-    document.getElementById('info-wallet-img').innerHTML = '<img src="' + data.img + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
+  var d = WALLETS_DATA[key];
+  if(d){
+    document.getElementById('info-wallet-name').textContent = d.name;
+    document.getElementById('info-account-number').textContent = d.account_number;
+    document.getElementById('info-account-holder').textContent = d.account_holder;
+    document.getElementById('info-wallet-img').innerHTML =
+      '<img src="'+d.img+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
     document.getElementById('wallet-info-card').classList.add('visible');
   }
 
-  // Afficher le formulaire
-  var form = document.getElementById('form-section');
-  form.style.display = 'block';
-  setTimeout(function(){
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  var section = document.getElementById('form-section');
+  section.style.display = 'block';
+  setTimeout(function(){ section.scrollIntoView({ behavior:'smooth', block:'start' }); }, 100);
+}
+
+// Upload zone : drag & drop
+var zone = document.getElementById('upload-zone');
+if(zone){
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('drag-over');
+    var files = e.dataTransfer.files;
+    if(files.length){
+      var input = document.getElementById('screenshot-input');
+      // DataTransfer pour simuler le fichier déposé
+      var dt = new DataTransfer();
+      dt.items.add(files[0]);
+      input.files = dt.files;
+      showPreview(files[0]);
+    }
+  });
+}
+
+function handleFileSelect(input){
+  if(input.files && input.files[0]) showPreview(input.files[0]);
+}
+
+function showPreview(file){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-filename').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' Mo)';
+    document.getElementById('upload-preview').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFile(){
+  document.getElementById('screenshot-input').value = '';
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('preview-img').src = '';
 }
 </script>
 {% endblock %}
