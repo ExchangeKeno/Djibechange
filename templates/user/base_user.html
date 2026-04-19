@@ -8,75 +8,123 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <style>
+    /* ════════════════════════════
+       LAYOUT
+    ════════════════════════════ */
     .user-layout { display: flex; min-height: 100vh; }
+
     .user-sidebar {
-      width: 260px;
-      min-height: 100vh;
-      background: var(--dark-card);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 24px 0;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      flex-shrink: 0;
+      width: 260px; min-width: 260px; flex-shrink: 0;
+      background: var(--dark-card); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 24px 0;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      transition: transform 0.3s ease;
     }
-    .user-main {
-      flex: 1;
-      padding: 36px 40px;
-      overflow-y: auto;
-      position: relative;
-      z-index: 1;
-    }
+    .user-main { flex: 1; padding: 36px 40px; overflow-y: auto; position: relative; z-index: 1; }
+
     .user-nav { list-style: none; padding: 0 12px; margin: 0; }
     .user-nav li a {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 10px;
-      color: var(--text-muted); font-size: 0.88rem; font-weight: 500;
+      padding: 11px 14px; border-radius: 10px;
+      color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
       text-decoration: none; transition: all 0.2s; margin-bottom: 2px;
     }
-    .user-nav li a:hover, .user-nav li a.active {
-      background: rgba(0,212,255,0.08); color: var(--text);
-    }
-    .user-nav li a.active { color: var(--primary); font-weight: 600; }
+    .user-nav li a:hover { background: rgba(0,212,255,0.08); color: var(--text); }
+    .user-nav li a.active { background: rgba(0,212,255,0.08); color: var(--primary); font-weight: 600; }
+
     .sidebar-sec {
       font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1px; color: var(--text-muted);
-      padding: 14px 14px 6px; margin-top: 6px;
+      letter-spacing: 1px; color: var(--text-muted); padding: 14px 14px 6px; margin-top: 6px;
     }
     .user-avatar {
       width: 44px; height: 44px; border-radius: 12px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 800; color: #fff;
-      flex-shrink: 0;
+      font-size: 1.1rem; font-weight: 800; color: #fff; flex-shrink: 0;
     }
+
+    /* ── Mobile topbar ── */
+    .user-topbar {
+      display: none; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(10,14,26,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px; height: 60px;
+    }
+    .user-topbar .logo { font-size: 1.1rem; }
+    .user-topbar .logo .logo-icon { width: 34px; height: 34px; font-size: 0.85rem; }
+
+    .user-hamburger {
+      display: flex; flex-direction: column; justify-content: center; gap: 5px;
+      width: 40px; height: 40px; background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; padding: 8px; transition: all 0.2s;
+    }
+    .user-hamburger span { display: block; width: 100%; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+    .user-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .user-hamburger.open span:nth-child(2) { opacity: 0; }
+    .user-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── Backdrop ── */
+    .user-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 150; backdrop-filter: blur(4px);
+    }
+    .user-backdrop.active { display: block; }
 
     /* ── Toast ── */
     #toast-c { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: 12px; font-size: 0.88rem; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,0.4); min-width: 280px; animation: slideIn 0.3s ease; }
+    .toast {
+      display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+      border-radius: 12px; font-size: 0.88rem; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4); min-width: 260px; max-width: 90vw;
+      animation: slideIn 0.3s ease;
+    }
     .toast-s { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
-    .toast-e { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+    .toast-e { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
     @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    /* ── Status badges (user side) ── */
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;
-    }
+    /* ── Status pills ── */
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; }
     .sp-pending    { background: rgba(245,158,11,0.12);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
     .sp-processing { background: rgba(0,212,255,0.1);    color: var(--primary); border: 1px solid rgba(0,212,255,0.25); }
     .sp-completed  { background: rgba(16,185,129,0.1);   color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
     .sp-rejected   { background: rgba(239,68,68,0.1);    color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+    /* ════════════════════════════
+       RESPONSIVE
+    ════════════════════════════ */
+    @media (max-width: 900px) {
+      .user-topbar { display: flex; }
+      .user-layout { flex-direction: column; }
+
+      .user-sidebar {
+        position: fixed; top: 0; left: 0; height: 100vh;
+        z-index: 160; transform: translateX(-100%);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+        padding-top: 16px;
+      }
+      .user-sidebar.open { transform: translateX(0); }
+      .user-main { padding: 20px 16px; width: 100%; }
+    }
+
+    @media (max-width: 600px) {
+      .user-main { padding: 16px 12px; }
+      .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+      .stat-card { padding: 16px !important; }
+      .stat-card .stat-value { font-size: 1.5rem !important; }
+      .table-scroll { overflow-x: auto; }
+      table { min-width: 520px; }
+      #toast-c { bottom: 12px; right: 12px; left: 12px; }
+      .toast { min-width: unset; width: 100%; }
+    }
   </style>
 </head>
 <body>
 <div id="toast-c"></div>
 
 {% if messages %}
-<div style="position:fixed;top:20px;right:20px;z-index:500;min-width:300px;">
+<div style="position:fixed;top:68px;right:12px;z-index:500;min-width:280px;max-width:90vw;">
   {% for msg in messages %}
   <div class="alert alert-{{ msg.tags|default:'info' }}">
     <span>{% if msg.tags == 'error' %}⚠{% else %}✓{% endif %}</span>
@@ -86,23 +134,42 @@
 </div>
 {% endif %}
 
+<!-- Mobile topbar -->
+<header class="user-topbar">
+  <a href="{% url 'home' %}" class="logo">
+    <div class="logo-icon">DX</div>
+    <span class="gradient-text">DJIB Exchange</span>
+  </a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="user-avatar" style="width:34px;height:34px;font-size:0.85rem;border-radius:8px;">
+      {{ request.user.first_name|first|upper }}
+    </div>
+    <button class="user-hamburger" id="user-hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Backdrop -->
+<div class="user-backdrop" id="user-backdrop"></div>
+
 <div class="user-layout">
   <!-- Sidebar -->
-  <aside class="user-sidebar">
-    <a href="{% url 'home' %}" class="logo" style="padding: 0 20px; margin-bottom: 24px;">
+  <aside class="user-sidebar" id="user-sidebar">
+    <a href="{% url 'home' %}" class="logo" style="padding:0 20px;margin-bottom:20px;">
       <div class="logo-icon">DX</div>
       <span class="gradient-text">DJIB Exchange</span>
     </a>
 
     <!-- Profil utilisateur -->
-    <div style="padding: 0 14px; margin-bottom: 20px;">
-      <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px;">
+    <div style="padding:0 14px;margin-bottom:18px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;">
         <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
-        <div style="overflow: hidden;">
-          <div style="font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        <div style="overflow:hidden;">
+          <div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
             {{ request.user.get_full_name|default:request.user.username }}
           </div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ request.user.email }}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ request.user.email }}</div>
         </div>
       </div>
     </div>
@@ -130,11 +197,11 @@
       </a></li>
     </ul>
 
-    <div style="margin-top: auto; padding: 16px 14px 0;">
-      <a href="{% url 'home' %}" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;color:var(--text-muted);font-size:0.85rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+    <div style="margin-top:auto;padding:16px 14px 0;">
+      <a href="{% url 'home' %}" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;color:var(--text-muted);font-size:0.85rem;text-decoration:none;transition:all 0.2s;">
         🌐 Retour au site
       </a>
-      <a href="{% url 'user_logout' %}" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;color:var(--text-muted);font-size:0.85rem;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.color='#f87171'" onmouseout="this.style.background='';this.style.color=''">
+      <a href="{% url 'user_logout' %}" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;color:#f87171;font-size:0.85rem;text-decoration:none;transition:all 0.2s;">
         🚪 Déconnexion
       </a>
     </div>
@@ -148,13 +215,26 @@
 
 <script src="{% static 'js/main.js' %}"></script>
 <script>
-function showToast(msg, type='s') {
-  const c = document.getElementById('toast-c');
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.innerHTML = `<span>${type==='s'?'✅':'❌'}</span><span>${msg}</span>`;
+// ── Drawer sidebar ──────────────────────────────────────────────────────────
+(function(){
+  var btn      = document.getElementById('user-hamburger');
+  var sidebar  = document.getElementById('user-sidebar');
+  var backdrop = document.getElementById('user-backdrop');
+  function openSidebar()  { sidebar.classList.add('open');  backdrop.classList.add('active');  btn.classList.add('open');  document.body.style.overflow='hidden'; }
+  function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('active'); btn.classList.remove('open'); document.body.style.overflow=''; }
+  if(btn)      btn.addEventListener('click', function(){ sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); });
+  if(backdrop) backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeSidebar); });
+})();
+
+function showToast(msg, type) {
+  type = type || 's';
+  var c = document.getElementById('toast-c');
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.innerHTML = '<span>' + (type==='s'?'✅':'❌') + '</span><span>' + msg + '</span>';
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(10px)'; t.style.transition='all 0.4s'; setTimeout(()=>t.remove(),400); }, 3500);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(10px)'; t.style.transition='all 0.4s'; setTimeout(function(){ t.remove(); }, 400); }, 3500);
 }
 </script>
 {% block extra_js %}{% endblock %}
