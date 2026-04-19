@@ -1,6 +1,6 @@
 {% extends 'user/base_user.html' %}
 {% load static %}
-{% block title %}Nouvelle demande — DJIB Exchange{% endblock %}
+{% block title %}{{ t.u_new_title }} — DJIB Exchange{% endblock %}
 {% block nav_new %}active{% endblock %}
 
 {% block user_content %}
@@ -94,14 +94,14 @@
 <div style="max-width:640px;">
 
   <div style="margin-bottom:28px;">
-    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:4px;">Nouvelle <span class="gradient-text">demande</span></h1>
-    <p style="color:var(--text-muted);font-size:0.88rem;">Choisissez votre portefeuille et remplissez le formulaire.</p>
+    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:4px;">{{ t.u_new_title }}</h1>
+    <p style="color:var(--text-muted);font-size:0.88rem;">{{ t.u_new_desc }}</p>
   </div>
 
   <!-- Étape 1 : Choisir le wallet -->
   <div class="card" style="margin-bottom:20px;">
     <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:16px;">
-      Étape 1 — Choisir le portefeuille
+      {{ t.u_step1_label }}
     </div>
     <div class="wallet-select-grid">
       {% for key, info in wallets.items %}
@@ -127,15 +127,15 @@
         <div id="info-wallet-name" style="font-weight:700;font-size:0.95rem;">
           {% if wallet_key %}{{ wallet.full_name|default:wallet_key }}{% endif %}
         </div>
-        <div style="font-size:0.75rem;color:var(--primary);font-weight:600;">Envoyez le montant à ce compte</div>
+        <div style="font-size:0.75rem;color:var(--primary);font-weight:600;">{{ t.u_send_to_account }}</div>
       </div>
     </div>
     <div class="wallet-info-row">
-      <span class="wir-label">Numéro de compte</span>
+      <span class="wir-label">{{ t.u_account_number }}</span>
       <span class="wir-value highlight" id="info-account-number">—</span>
     </div>
     <div class="wallet-info-row">
-      <span class="wir-label">Titulaire du compte</span>
+      <span class="wir-label">{{ t.u_account_holder }}</span>
       <span class="wir-value" id="info-account-holder">—</span>
     </div>
   </div>
@@ -143,35 +143,33 @@
   <!-- Étape 2 : Formulaire -->
   <div class="card" id="form-section" style="{% if not wallet_key %}display:none;{% endif %}">
     <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:22px;">
-      Étape 2 — Détails de la transaction
+      {{ t.u_step2_label }}
     </div>
 
     <form method="post" enctype="multipart/form-data" novalidate id="request-form">
       {% csrf_token %}
       <input type="hidden" name="wallet_key" id="wallet_key_input" value="{{ wallet_key }}">
 
-      <!-- 1. Screenshot en premier -->
+      <!-- 1. Screenshot -->
       <div style="margin-bottom:22px;">
         <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">
-          Capture d'écran de la transaction <span style="color:var(--danger);">*</span>
+          {{ t.u_screenshot_label }} <span style="color:var(--danger);">*</span>
         </label>
 
         <div class="upload-zone" id="upload-zone">
-          <!-- Input fichier réel -->
           <input type="file" name="screenshot" id="screenshot-input"
                  accept="image/png,image/jpeg,image/jpg,image/webp"
                  onchange="handleFileSelect(this)">
           <span class="uz-icon">📸</span>
-          <div class="uz-title">Appuyez pour ajouter votre capture</div>
-          <div class="uz-sub">PNG, JPG ou WebP — max 70 Mo</div>
+          <div class="uz-title">{{ t.u_upload_tap }}</div>
+          <div class="uz-sub">{{ t.u_upload_hint }}</div>
         </div>
 
-        <!-- Prévisualisation -->
         <div class="upload-preview" id="upload-preview">
-          <img id="preview-img" src="" alt="Aperçu">
+          <img id="preview-img" src="" alt="">
           <div class="upload-preview-name">
             <span id="preview-filename" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-            <button type="button" class="upload-remove" onclick="removeFile()">Supprimer</button>
+            <button type="button" class="upload-remove" onclick="removeFile()">{{ t.u_upload_remove }}</button>
           </div>
         </div>
 
@@ -183,7 +181,7 @@
       <!-- 2. Montant -->
       <div style="margin-bottom:20px;">
         <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
-          Montant envoyé (DJF) <span style="color:var(--danger);">*</span>
+          {{ t.u_amount_label }} <span style="color:var(--danger);">*</span>
         </label>
         {{ form.amount_sent }}
         {% if form.amount_sent.errors %}
@@ -194,17 +192,17 @@
       <!-- 3. MoneyGo ID -->
       <div style="margin-bottom:28px;">
         <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
-          MoneyGo Wallet ID <span style="color:var(--danger);">*</span>
+          {{ t.u_moneygo_label }} <span style="color:var(--danger);">*</span>
         </label>
         {{ form.moneygo_wallet }}
         {% if form.moneygo_wallet.errors %}
         <div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.moneygo_wallet.errors.0 }}</div>
         {% endif %}
-        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">Votre identifiant MoneyGo (ex: U123456789)</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">{{ t.u_moneygo_hint }}</div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:15px;">
-        Soumettre ma demande →
+        {{ t.u_submit_btn }}
       </button>
     </form>
   </div>
@@ -226,7 +224,7 @@ var WALLETS_DATA = {
   {% endfor %}
 };
 
-// Pré-remplir si wallet déjà sélectionné
+// Pre-fill if wallet already selected
 {% if wallet_key %}
 (function(){
   var d = WALLETS_DATA['{{ wallet_key }}'];
@@ -237,7 +235,6 @@ var WALLETS_DATA = {
 })();
 {% endif %}
 
-// Sélection d'un wallet
 function selectWallet(key, btn) {
   document.querySelectorAll('.wallet-btn').forEach(function(b){ b.classList.remove('selected'); });
   btn.classList.add('selected');
@@ -258,7 +255,6 @@ function selectWallet(key, btn) {
   setTimeout(function(){ section.scrollIntoView({ behavior:'smooth', block:'start' }); }, 100);
 }
 
-// Upload zone : drag & drop
 var zone = document.getElementById('upload-zone');
 if(zone){
   zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
@@ -268,7 +264,6 @@ if(zone){
     var files = e.dataTransfer.files;
     if(files.length){
       var input = document.getElementById('screenshot-input');
-      // DataTransfer pour simuler le fichier déposé
       var dt = new DataTransfer();
       dt.items.add(files[0]);
       input.files = dt.files;
@@ -285,7 +280,7 @@ function showPreview(file){
   var reader = new FileReader();
   reader.onload = function(e){
     document.getElementById('preview-img').src = e.target.result;
-    document.getElementById('preview-filename').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' Mo)';
+    document.getElementById('preview-filename').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)';
     document.getElementById('upload-preview').style.display = 'block';
     document.getElementById('upload-zone').style.display = 'none';
   };

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Créer un compte — DJIB Exchange{% endblock %}
+{% block title %}{{ t.reg_title }} — DJIB Exchange{% endblock %}
 
 {% block content %}
 <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
@@ -8,8 +8,8 @@
 
     <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:2rem;margin-bottom:8px;">✨</div>
-      <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;">Créer un compte</h1>
-      <p style="color:var(--text-muted);font-size:0.88rem;">Rejoignez DJIB Exchange pour effectuer vos échanges.</p>
+      <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;">{{ t.reg_title }}</h1>
+      <p style="color:var(--text-muted);font-size:0.88rem;">{{ t.reg_desc }}</p>
     </div>
 
     <div class="card" style="padding:32px;">
@@ -24,49 +24,49 @@
         {% csrf_token %}
 
         <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Nom complet</label>
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.reg_fullname }}</label>
           {{ form.full_name }}
           {% if form.full_name.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.full_name.errors.0 }}</div>{% endif %}
         </div>
 
         <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Numéro de téléphone</label>
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.reg_phone }}</label>
           {{ form.phone }}
           {% if form.phone.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.phone.errors.0 }}</div>{% endif %}
         </div>
 
         <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Adresse email</label>
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.reg_email }}</label>
           {{ form.email }}
           {% if form.email.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.email.errors.0 }}</div>{% endif %}
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
           <div>
-            <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Mot de passe</label>
+            <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.reg_password }}</label>
             {{ form.password }}
             {% if form.password.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.password.errors.0 }}</div>{% endif %}
           </div>
           <div>
-            <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Confirmer</label>
+            <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.reg_confirm }}</label>
             {{ form.password_confirm }}
             {% if form.password_confirm.errors %}<div style="color:var(--danger);font-size:0.78rem;margin-top:5px;">{{ form.password_confirm.errors.0 }}</div>{% endif %}
           </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:14px;">
-          Créer mon compte →
+          {{ t.reg_btn }}
         </button>
       </form>
 
       <div style="text-align:center;margin-top:18px;font-size:0.85rem;color:var(--text-muted);">
-        Déjà un compte ?
-        <a href="{% url 'user_login' %}" style="color:var(--primary);font-weight:600;">Se connecter</a>
+        {{ t.reg_have_account }}
+        <a href="{% url 'user_login' %}" style="color:var(--primary);font-weight:600;">{{ t.reg_login_link }}</a>
       </div>
     </div>
 
     <div style="text-align:center;margin-top:16px;">
-      <a href="{% url 'home' %}" style="font-size:0.82rem;color:var(--text-muted);">← Retour à l'accueil</a>
+      <a href="{% url 'home' %}" style="font-size:0.82rem;color:var(--text-muted);">{{ t.reg_back }}</a>
     </div>
 
   </div>

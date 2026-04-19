@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Connexion — DJIB Exchange{% endblock %}
+{% block title %}{{ t.login_title }} — DJIB Exchange{% endblock %}
 
 {% block content %}
 <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
@@ -8,8 +8,8 @@
 
     <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:2rem;margin-bottom:8px;">🔑</div>
-      <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;">Se connecter</h1>
-      <p style="color:var(--text-muted);font-size:0.88rem;">Accédez à votre espace personnel DJIB Exchange.</p>
+      <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;">{{ t.login_title }}</h1>
+      <p style="color:var(--text-muted);font-size:0.88rem;">{{ t.login_desc }}</p>
     </div>
 
     <div class="card" style="padding:32px;">
@@ -27,28 +27,28 @@
         {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
         <div style="margin-bottom:16px;">
-          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Adresse email</label>
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.login_email }}</label>
           <input type="email" name="email" class="form-input" placeholder="votre@email.com" required autocomplete="email">
         </div>
 
         <div style="margin-bottom:24px;">
-          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">Mot de passe</label>
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:7px;">{{ t.login_password }}</label>
           <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:14px;">
-          Se connecter →
+          {{ t.login_btn }}
         </button>
       </form>
 
       <div style="text-align:center;margin-top:18px;font-size:0.85rem;color:var(--text-muted);">
-        Pas encore de compte ?
-        <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">S'inscrire gratuitement</a>
+        {{ t.login_no_account }}
+        <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">{{ t.login_register_link }}</a>
       </div>
     </div>
 
     <div style="text-align:center;margin-top:16px;">
-      <a href="{% url 'home' %}" style="font-size:0.82rem;color:var(--text-muted);">← Retour à l'accueil</a>
+      <a href="{% url 'home' %}" style="font-size:0.82rem;color:var(--text-muted);">{{ t.login_back }}</a>
     </div>
 
   </div>
