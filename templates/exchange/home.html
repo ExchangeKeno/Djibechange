@@ -296,11 +296,19 @@
 }
 .wallet-card:hover::before { opacity: 1; }
 .wallet-logo-wrap {
-  width: 64px; height: 64px;
+  width: 68px; height: 68px;
   border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  background: rgba(0,212,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.wallet-logo-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
 }
 .wallet-card h3 { font-size: 1rem; font-weight: 700; margin: 0; }
 .wallet-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.5; flex: 1; }
@@ -533,9 +541,10 @@
   .wallets-grid { grid-template-columns: 1fr; }
 }
 
-/* Fade-up animation */
-.fade-up { opacity:0; transform:translateY(30px); animation:fadeUp 0.6s ease forwards; }
-@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+/* Fade-up animation — class added by JS when element enters viewport */
+.fade-up { opacity:1; transform:none; transition:opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.will-animate { opacity:0; transform:translateY(28px); }
+.fade-up.animated { opacity:1; transform:none; }
 </style>
 {% endblock %}
 
@@ -678,7 +687,7 @@
 
     <div class="wallets-grid">
       {% if user.is_authenticated and not user.is_staff %}
-        <a href="{% url 'user_new_request' %}?wallet=waafi" class="wallet-card fade-up" style="animation-delay:0ms">
+        <a href="{% url 'user_new_request' %}?wallet=waafi" class="wallet-card fade-up" style="transition-delay:0ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>Waafi Mobile Money</h3>
@@ -686,7 +695,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} Waafi <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=cac" class="wallet-card fade-up" style="animation-delay:80ms">
+        <a href="{% url 'user_new_request' %}?wallet=cac" class="wallet-card fade-up" style="transition-delay:80ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>CAC International Bank</h3>
@@ -694,7 +703,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} CAC <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=dmoney" class="wallet-card fade-up" style="animation-delay:160ms">
+        <a href="{% url 'user_new_request' %}?wallet=dmoney" class="wallet-card fade-up" style="transition-delay:160ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>D-Money Transfer</h3>
@@ -702,7 +711,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} D-Money <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=saba" class="wallet-card fade-up" style="animation-delay:240ms">
+        <a href="{% url 'user_new_request' %}?wallet=saba" class="wallet-card fade-up" style="transition-delay:240ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>Saba African Bank</h3>
@@ -711,7 +720,7 @@
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} Saba <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
       {% else %}
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dwaafi" class="wallet-card fade-up" style="animation-delay:0ms">
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dwaafi" class="wallet-card fade-up" style="transition-delay:0ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>Waafi Mobile Money</h3>
@@ -719,7 +728,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} Waafi <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dcac" class="wallet-card fade-up" style="animation-delay:80ms">
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dcac" class="wallet-card fade-up" style="transition-delay:80ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>CAC International Bank</h3>
@@ -727,7 +736,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} CAC <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Ddmoney" class="wallet-card fade-up" style="animation-delay:160ms">
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Ddmoney" class="wallet-card fade-up" style="transition-delay:160ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>D-Money Transfer</h3>
@@ -735,7 +744,7 @@
           </div>
           <div class="wallet-arrow">{{ t.wallet_exchange_via }} D-Money <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dsaba" class="wallet-card fade-up" style="animation-delay:240ms">
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dsaba" class="wallet-card fade-up" style="transition-delay:240ms">
           <div class="wallet-logo-wrap"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
           <div>
             <h3>Saba African Bank</h3>
@@ -763,19 +772,19 @@
       <p>{{ t.hiw_desc }}</p>
     </div>
     <div class="hiw-grid">
-      <div class="hiw-card fade-up" style="animation-delay:0ms">
+      <div class="hiw-card fade-up" style="transition-delay:0ms">
         <div class="hiw-num">1</div>
         <span class="hiw-icon">💳</span>
         <h3>{{ t.hiw_step1_title }}</h3>
         <p>{{ t.hiw_step1_desc }}</p>
       </div>
-      <div class="hiw-card fade-up" style="animation-delay:100ms">
+      <div class="hiw-card fade-up" style="transition-delay:100ms">
         <div class="hiw-num">2</div>
         <span class="hiw-icon">📲</span>
         <h3>{{ t.hiw_step2_title }}</h3>
         <p>{{ t.hiw_step2_desc }}</p>
       </div>
-      <div class="hiw-card fade-up" style="animation-delay:200ms">
+      <div class="hiw-card fade-up" style="transition-delay:200ms">
         <div class="hiw-num">3</div>
         <span class="hiw-icon">💸</span>
         <h3>{{ t.hiw_step3_title }}</h3>
@@ -793,22 +802,22 @@
       <h2>{{ t.feat_title }} <span class="gradient-text">{{ t.feat_title_2 }}</span></h2>
     </div>
     <div class="features-grid">
-      <div class="feature-card fade-up" style="animation-delay:0ms">
+      <div class="feature-card fade-up" style="transition-delay:0ms">
         <div class="feature-icon">⚡</div>
         <h3>{{ t.feat1_title }}</h3>
         <p>{{ t.feat1_desc }}</p>
       </div>
-      <div class="feature-card fade-up" style="animation-delay:80ms">
+      <div class="feature-card fade-up" style="transition-delay:80ms">
         <div class="feature-icon">🔒</div>
         <h3>{{ t.feat2_title }}</h3>
         <p>{{ t.feat2_desc }}</p>
       </div>
-      <div class="feature-card fade-up" style="animation-delay:160ms">
+      <div class="feature-card fade-up" style="transition-delay:160ms">
         <div class="feature-icon">💱</div>
         <h3>{{ t.feat3_title }}</h3>
         <p>{{ t.feat3_desc }}</p>
       </div>
-      <div class="feature-card fade-up" style="animation-delay:240ms">
+      <div class="feature-card fade-up" style="transition-delay:240ms">
         <div class="feature-icon">🎧</div>
         <h3>{{ t.feat4_title }}</h3>
         <p>{{ t.feat4_desc }}</p>
@@ -825,7 +834,7 @@
       <h2>{{ t.testi_title }} <span class="gradient-text">{{ t.testi_title_2 }}</span></h2>
     </div>
     <div class="testi-grid">
-      <div class="testi-card fade-up" style="animation-delay:0ms">
+      <div class="testi-card fade-up" style="transition-delay:0ms">
         <div class="testi-stars">★★★★★</div>
         <p class="testi-text">"{{ t.testi1_text }}"</p>
         <div class="testi-author">
@@ -836,7 +845,7 @@
           </div>
         </div>
       </div>
-      <div class="testi-card fade-up" style="animation-delay:100ms">
+      <div class="testi-card fade-up" style="transition-delay:100ms">
         <div class="testi-stars">★★★★★</div>
         <p class="testi-text">"{{ t.testi2_text }}"</p>
         <div class="testi-author">
@@ -847,7 +856,7 @@
           </div>
         </div>
       </div>
-      <div class="testi-card fade-up" style="animation-delay:200ms">
+      <div class="testi-card fade-up" style="transition-delay:200ms">
         <div class="testi-stars">★★★★★</div>
         <p class="testi-text">"{{ t.testi3_text }}"</p>
         <div class="testi-author">
@@ -938,23 +947,23 @@
 
 {% block extra_js %}
 <script>
-// Intersection Observer pour fade-up
 (function(){
-  var els = document.querySelectorAll('.fade-up');
-  if(!('IntersectionObserver' in window)){
-    els.forEach(function(el){ el.style.opacity=1; el.style.transform='none'; });
-    return;
-  }
+  if(!('IntersectionObserver' in window)) return;
+  var vH = window.innerHeight || document.documentElement.clientHeight;
   var obs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.isIntersecting){
-        e.target.style.animationPlayState='running';
+        e.target.classList.add('animated');
+        e.target.classList.remove('will-animate');
         obs.unobserve(e.target);
       }
     });
-  }, { threshold:0.1 });
-  els.forEach(function(el){
-    el.style.animationPlayState='paused';
+  }, { threshold:0.06, rootMargin:'0px 0px -30px 0px' });
+  document.querySelectorAll('.fade-up').forEach(function(el){
+    var rect = el.getBoundingClientRect();
+    // Déjà visible au chargement → pas d'animation, visible immédiatement
+    if(rect.top < vH && rect.bottom > 0) return;
+    el.classList.add('will-animate');
     obs.observe(el);
   });
 })();
