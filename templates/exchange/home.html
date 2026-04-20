@@ -3,22 +3,627 @@
 {% block nav_home %}active{% endblock %}
 {% block title %}DJIB Exchange — {{ t.hero_title_2 }}{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero {
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 0 60px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 50%, rgba(0,212,255,0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 90% 20%, rgba(124,58,237,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 24px;
+}
+.hero-badge .dot {
+  width: 8px; height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(1.3); }
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+.hero-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 36px;
+  max-width: 520px;
+}
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.hero-trust {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.hero-trust-avatars {
+  display: flex;
+}
+.hero-trust-avatars span {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 800; color: #fff;
+  margin-left: -8px;
+}
+.hero-trust-avatars span:first-child { margin-left: 0; }
+
+/* Phone mockup */
+.phone-mockup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.phone-frame {
+  width: 260px;
+  background: #0d1526;
+  border-radius: 36px;
+  border: 2px solid rgba(0,212,255,0.2);
+  padding: 24px 16px 28px;
+  box-shadow:
+    0 40px 80px rgba(0,0,0,0.5),
+    0 0 60px rgba(0,212,255,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative;
+  z-index: 2;
+}
+.phone-notch {
+  width: 70px; height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50px;
+  margin: 0 auto 20px;
+}
+.phone-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.phone-app-logo {
+  font-size: 0.75rem; font-weight: 800;
+  background: linear-gradient(135deg,var(--primary),var(--accent-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.phone-balance {
+  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(124,58,237,0.08));
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.phone-balance-label { font-size: 0.62rem; color: var(--text-muted); margin-bottom: 4px; }
+.phone-balance-amount { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+.phone-tx-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.phone-tx-item:last-child { border-bottom: none; }
+.phone-tx-dot {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.phone-tx-info { flex: 1; }
+.phone-tx-name { font-size: 0.72rem; font-weight: 600; }
+.phone-tx-date { font-size: 0.6rem; color: var(--text-muted); }
+.phone-tx-amount { font-size: 0.72rem; font-weight: 700; color: #34d399; }
+
+/* Floating notification cards */
+.float-card {
+  position: absolute;
+  background: rgba(13,21,38,0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  z-index: 3;
+  white-space: nowrap;
+  animation: floatAnim 4s ease-in-out infinite;
+}
+.float-card-2 { animation-delay: 2s; }
+@keyframes floatAnim {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-card-left  { left: -30px; top: 15%; }
+.float-card-right { right: -30px; bottom: 20%; }
+.fc-icon { font-size: 1rem; margin-right: 6px; }
+.fc-green { color: #34d399; }
+.fc-blue  { color: var(--primary); }
+
+/* Glow circles behind phone */
+.phone-glow-1 {
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.phone-glow-2 {
+  position: absolute;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+  bottom: 10%; right: 0;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════
+   STATS BAR
+══════════════════════════════ */
+.stats-bar {
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0;
+  position: relative; z-index: 1;
+}
+.stats-bar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.stat-item {
+  text-align: center;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+.stat-item:last-child { border-right: none; }
+.stat-item:hover { transform: translateY(-2px); }
+.stat-val {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg,var(--primary),var(--accent-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.stat-lbl { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+/* ══════════════════════════════
+   SECTION HEADER
+══════════════════════════════ */
+.section-tag {
+  display: inline-block;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  margin-bottom: 14px;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.section-header h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; }
+.section-header p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; margin-top: 12px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+/* ══════════════════════════════
+   WALLET CARDS (improved)
+══════════════════════════════ */
+.wallets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+.wallet-card {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.wallet-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,255,0.03), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.wallet-card:hover {
+  border-color: rgba(0,212,255,0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 30px rgba(0,212,255,0.06);
+  color: var(--text);
+}
+.wallet-card:hover::before { opacity: 1; }
+.wallet-logo-wrap {
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.wallet-card h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+.wallet-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.5; flex: 1; }
+.wallet-arrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════
+   HOW IT WORKS (improved)
+══════════════════════════════ */
+.hiw-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+  position: relative;
+}
+.hiw-grid::before {
+  content: '';
+  position: absolute;
+  top: 50px;
+  left: calc(16.7% + 10px);
+  right: calc(16.7% + 10px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent-light));
+  opacity: 0.3;
+  z-index: 0;
+}
+.hiw-card {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s;
+}
+.hiw-card:hover { transform: translateY(-4px); }
+.hiw-num {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 900; color: white;
+  margin: 0 auto 20px;
+  box-shadow: 0 0 24px rgba(0,212,255,0.35);
+}
+.hiw-icon { font-size: 1.8rem; margin-bottom: 14px; display: block; }
+.hiw-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+.hiw-card p { color: var(--text-muted); font-size: 0.87rem; line-height: 1.6; }
+
+/* ══════════════════════════════
+   FEATURES
+══════════════════════════════ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.feature-card {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 24px;
+  transition: all 0.2s;
+}
+.feature-card:hover {
+  border-color: rgba(0,212,255,0.3);
+  transform: translateY(-2px);
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  display: block;
+  width: 52px; height: 52px;
+  background: rgba(0,212,255,0.08);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.feature-card h3 { font-size: 0.97rem; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.6; }
+
+/* ══════════════════════════════
+   TESTIMONIALS
+══════════════════════════════ */
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+}
+.testi-card {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  transition: transform 0.2s;
+}
+.testi-card:hover { transform: translateY(-3px); }
+.testi-stars { color: #fbbf24; font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
+.testi-text { font-size: 0.88rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 20px; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; color: #fff; flex-shrink: 0;
+}
+.testi-name { font-size: 0.88rem; font-weight: 700; }
+.testi-role { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ══════════════════════════════
+   MONEYGO SECTION (improved)
+══════════════════════════════ */
+.mg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.mg-visual {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+.mg-card {
+  background: #0e1829;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 30px 80px rgba(214,51,132,0.15), 0 0 60px rgba(0,212,255,0.05);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.mg-badge {
+  display: inline-block;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 50px;
+  margin-bottom: 14px;
+}
+.mg-feat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,212,255,0.07);
+  border: 1px solid rgba(0,212,255,0.18);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ══════════════════════════════
+   BOTTOM CTA
+══════════════════════════════ */
+.cta-section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 0;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%);
+}
+.cta-inner {
+  background: var(--dark-card);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 28px;
+  padding: 60px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(0,212,255,0.06);
+}
+.cta-inner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse 50% 40% at 50% 0%, rgba(0,212,255,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-inner h2 { font-size: clamp(1.6rem,3.5vw,2.4rem); font-weight: 900; margin-bottom: 16px; }
+.cta-inner p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; max-width: 560px; margin: 0 auto 36px; }
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media (max-width: 1000px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .phone-mockup { display: none; }
+  .mg-grid { grid-template-columns: 1fr; gap: 36px; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .hiw-grid { grid-template-columns: 1fr; }
+  .hiw-grid::before { display: none; }
+  .stats-bar-grid { grid-template-columns: repeat(2,1fr); }
+  .stat-item:nth-child(2) { border-right: none; }
+  .stat-item:nth-child(3) { border-top: 1px solid var(--border); }
+  .stat-item:nth-child(4) { border-right: none; border-top: 1px solid var(--border); }
+}
+@media (max-width: 640px) {
+  .hero { padding: 80px 0 40px; min-height: auto; }
+  .hero h1 { font-size: 2rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions .btn { text-align: center; }
+  .wallets-grid { grid-template-columns: 1fr 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .cta-inner { padding: 40px 24px; }
+  .stats-bar-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 400px) {
+  .wallets-grid { grid-template-columns: 1fr; }
+}
+
+/* Fade-up animation */
+.fade-up { opacity:0; transform:translateY(30px); animation:fadeUp 0.6s ease forwards; }
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <!-- ═══════════════════ HERO ═══════════════════ -->
 <section class="hero">
   <div class="container">
-    <div class="hero-badge"><span class="dot"></span>{{ t.hero_badge }}</div>
-    <h1>{{ t.hero_title_1 }}<br><span class="gradient-text">{{ t.hero_title_2 }}</span></h1>
-    <p>{{ t.hero_desc }}</p>
-    <div class="hero-actions">
-      {% if user.is_authenticated and not user.is_staff %}
-        <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
-        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-lg">Mon tableau de bord</a>
-      {% else %}
-        <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg">S'inscrire gratuitement</a>
-        <a href="{% url 'user_login' %}" class="btn btn-outline btn-lg">Se connecter</a>
-      {% endif %}
+    <div class="hero-grid">
+      <!-- Left: Text -->
+      <div>
+        <div class="hero-badge"><span class="dot"></span>{{ t.hero_badge }}</div>
+        <h1>{{ t.hero_title_1 }}<br><span class="gradient-text">{{ t.hero_title_2 }}</span></h1>
+        <p class="hero-desc">{{ t.hero_desc }}</p>
+        <div class="hero-actions">
+          {% if user.is_authenticated and not user.is_staff %}
+            <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
+            <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-lg">{{ t.hero_btn_dashboard }}</a>
+          {% else %}
+            <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg">{{ t.nav_register_free }}</a>
+            <a href="{% url 'user_login' %}" class="btn btn-outline btn-lg">{{ t.nav_login }}</a>
+          {% endif %}
+        </div>
+        <div class="hero-trust">
+          <div class="hero-trust-avatars">
+            <span style="background:linear-gradient(135deg,#1a73e8,#0d47a1);">AM</span>
+            <span style="background:linear-gradient(135deg,#00897b,#004d40);">HF</span>
+            <span style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">YA</span>
+            <span style="background:linear-gradient(135deg,#f59e0b,#b45309);">+</span>
+          </div>
+          <span>{{ t.stats_exchanges_val }} {{ t.stats_exchanges_lbl }}</span>
+        </div>
+      </div>
+
+      <!-- Right: Phone mockup -->
+      <div class="phone-mockup">
+        <div class="phone-glow-1"></div>
+        <div class="phone-glow-2"></div>
+
+        <!-- Floating card top-left -->
+        <div class="float-card float-card-left">
+          <span class="fc-icon">✅</span>
+          <span class="fc-green">Exchange complete</span>
+        </div>
+
+        <!-- Phone frame -->
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-app-header">
+            <span class="phone-app-logo">DJIB Exchange</span>
+            <span style="font-size:0.65rem;color:var(--text-muted);">MoneyGo</span>
+          </div>
+          <div class="phone-balance">
+            <div class="phone-balance-label">MoneyGo Balance</div>
+            <div class="phone-balance-amount">$247.50</div>
+          </div>
+          <div class="phone-tx-item">
+            <div class="phone-tx-dot" style="background:linear-gradient(135deg,#1a73e8,#0d47a1);">WF</div>
+            <div class="phone-tx-info">
+              <div class="phone-tx-name">Waafi → MoneyGo</div>
+              <div class="phone-tx-date">today, 09:14</div>
+            </div>
+            <div class="phone-tx-amount">+$50.00</div>
+          </div>
+          <div class="phone-tx-item">
+            <div class="phone-tx-dot" style="background:linear-gradient(135deg,#1a3a6b,#c8a93b);">CAC</div>
+            <div class="phone-tx-info">
+              <div class="phone-tx-name">CAC → MoneyGo</div>
+              <div class="phone-tx-date">yesterday</div>
+            </div>
+            <div class="phone-tx-amount">+$120.00</div>
+          </div>
+          <div class="phone-tx-item">
+            <div class="phone-tx-dot" style="background:linear-gradient(135deg,#1e3a5f,#f5a623);">D-M</div>
+            <div class="phone-tx-info">
+              <div class="phone-tx-name">D-Money → MoneyGo</div>
+              <div class="phone-tx-date">2 days ago</div>
+            </div>
+            <div class="phone-tx-amount">+$77.50</div>
+          </div>
+        </div>
+
+        <!-- Floating card bottom-right -->
+        <div class="float-card float-card-right float-card-2">
+          <span class="fc-icon">⚡</span>
+          <span class="fc-blue">~5 min processing</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -31,12 +636,36 @@
       <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:0.9rem;">
         {{ user.first_name|first|upper }}
       </div>
-      <div style="font-weight:700;font-size:0.92rem;">Bonjour {{ user.first_name }} — choisissez un portefeuille pour faire une demande</div>
+      <div style="font-weight:700;font-size:0.92rem;">{{ t.home_welcome }} {{ user.first_name }} — {{ t.home_choose_wallet }}</div>
     </div>
-    <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">Mon espace →</a>
+    <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm" style="border-radius:50px;">{{ t.home_my_space }}</a>
   </div>
 </div>
 {% endif %}
+
+<!-- ═══════════════════ STATS BAR ═══════════════════ -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-bar-grid">
+      <div class="stat-item">
+        <div class="stat-val">{{ t.stats_exchanges_val }}</div>
+        <div class="stat-lbl">{{ t.stats_exchanges_lbl }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">{{ t.stats_wallets_val }}</div>
+        <div class="stat-lbl">{{ t.stats_wallets_lbl }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">{{ t.stats_time_val }}</div>
+        <div class="stat-lbl">{{ t.stats_time_lbl }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">{{ t.stats_avail_val }}</div>
+        <div class="stat-lbl">{{ t.stats_avail_lbl }}</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════ WALLETS ═══════════════════ -->
 <section class="section" id="wallets">
@@ -50,80 +679,107 @@
     <div class="wallets-grid">
       {% if user.is_authenticated and not user.is_staff %}
         <a href="{% url 'user_new_request' %}?wallet=waafi" class="wallet-card fade-up" style="animation-delay:0ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>Waafi Mobile Money</h3><p>{{ t.wallet_desc_waafi }}</p>
-          <div class="wallet-arrow">Échanger via Waafi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          <div class="wallet-logo-wrap"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>Waafi Mobile Money</h3>
+            <p>{{ t.wallet_desc_waafi }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} Waafi <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=cac" class="wallet-card fade-up" style="animation-delay:100ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>CAC International Bank</h3><p>{{ t.wallet_desc_cac }}</p>
-          <div class="wallet-arrow">Échanger via CAC <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_new_request' %}?wallet=cac" class="wallet-card fade-up" style="animation-delay:80ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>CAC International Bank</h3>
+            <p>{{ t.wallet_desc_cac }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} CAC <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=dmoney" class="wallet-card fade-up" style="animation-delay:200ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>D-Money Transfer</h3><p>{{ t.wallet_desc_dmoney }}</p>
-          <div class="wallet-arrow">Échanger via D-Money <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_new_request' %}?wallet=dmoney" class="wallet-card fade-up" style="animation-delay:160ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>D-Money Transfer</h3>
+            <p>{{ t.wallet_desc_dmoney }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} D-Money <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_new_request' %}?wallet=saba" class="wallet-card fade-up" style="animation-delay:300ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>Saba African Bank</h3><p>{{ t.wallet_desc_saba }}</p>
-          <div class="wallet-arrow">Échanger via Saba <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_new_request' %}?wallet=saba" class="wallet-card fade-up" style="animation-delay:240ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>Saba African Bank</h3>
+            <p>{{ t.wallet_desc_saba }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} Saba <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
       {% else %}
         <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dwaafi" class="wallet-card fade-up" style="animation-delay:0ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>Waafi Mobile Money</h3><p>{{ t.wallet_desc_waafi }}</p>
-          <div class="wallet-arrow">Échanger via Waafi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          <div class="wallet-logo-wrap"><img src="{% static 'images/waafi.webp' %}" alt="Waafi" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>Waafi Mobile Money</h3>
+            <p>{{ t.wallet_desc_waafi }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} Waafi <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dcac" class="wallet-card fade-up" style="animation-delay:100ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>CAC International Bank</h3><p>{{ t.wallet_desc_cac }}</p>
-          <div class="wallet-arrow">Échanger via CAC <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dcac" class="wallet-card fade-up" style="animation-delay:80ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/cac.webp' %}" alt="CAC" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>CAC International Bank</h3>
+            <p>{{ t.wallet_desc_cac }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} CAC <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Ddmoney" class="wallet-card fade-up" style="animation-delay:200ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>D-Money Transfer</h3><p>{{ t.wallet_desc_dmoney }}</p>
-          <div class="wallet-arrow">Échanger via D-Money <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Ddmoney" class="wallet-card fade-up" style="animation-delay:160ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/dmoney.webp' %}" alt="D-Money" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>D-Money Transfer</h3>
+            <p>{{ t.wallet_desc_dmoney }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} D-Money <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
-        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dsaba" class="wallet-card fade-up" style="animation-delay:300ms">
-          <div class="wallet-logo-wrap" style="background:transparent;border-radius:12px;overflow:hidden;"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
-          <h3>Saba African Bank</h3><p>{{ t.wallet_desc_saba }}</p>
-          <div class="wallet-arrow">Échanger via Saba <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <a href="{% url 'user_login' %}?next={% url 'user_new_request' %}%3Fwallet%3Dsaba" class="wallet-card fade-up" style="animation-delay:240ms">
+          <div class="wallet-logo-wrap"><img src="{% static 'images/saba.webp' %}" alt="Saba" style="width:100%;height:100%;object-fit:cover;"></div>
+          <div>
+            <h3>Saba African Bank</h3>
+            <p>{{ t.wallet_desc_saba }}</p>
+          </div>
+          <div class="wallet-arrow">{{ t.wallet_exchange_via }} Saba <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
       {% endif %}
     </div>
 
     {% if not user.is_authenticated %}
-    <p style="text-align:center;margin-top:20px;color:var(--text-muted);font-size:0.88rem;">
-      <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">Créez un compte gratuit</a> pour soumettre une demande d'échange.
+    <p style="text-align:center;margin-top:24px;color:var(--text-muted);font-size:0.88rem;">
+      <a href="{% url 'user_register' %}" style="color:var(--primary);font-weight:600;">{{ t.home_create_free }}</a> {{ t.home_to_submit }}
     </p>
     {% endif %}
   </div>
 </section>
 
 <!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
-<section class="section" id="how-it-works" style="background:rgba(255,255,255,0.015);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+<section class="section" id="how-it-works" style="background:rgba(255,255,255,0.012);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
   <div class="container">
     <div class="section-header">
       <div class="section-tag">{{ t.hiw_tag }}</div>
       <h2>{{ t.hiw_title }} <span class="gradient-text">{{ t.hiw_title_2 }}</span></h2>
       <p>{{ t.hiw_desc }}</p>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:40px;">
-      <div class="card" style="text-align:center;">
-        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.2rem;font-weight:800;color:white;box-shadow:var(--glow);">1</div>
-        <h3 style="margin-bottom:10px;font-size:1rem;">{{ t.hiw_step1_title }}</h3>
-        <p style="color:var(--text-muted);font-size:0.87rem;line-height:1.6;">{{ t.hiw_step1_desc }}</p>
+    <div class="hiw-grid">
+      <div class="hiw-card fade-up" style="animation-delay:0ms">
+        <div class="hiw-num">1</div>
+        <span class="hiw-icon">💳</span>
+        <h3>{{ t.hiw_step1_title }}</h3>
+        <p>{{ t.hiw_step1_desc }}</p>
       </div>
-      <div class="card" style="text-align:center;">
-        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.2rem;font-weight:800;color:white;box-shadow:var(--glow);">2</div>
-        <h3 style="margin-bottom:10px;font-size:1rem;">{{ t.hiw_step2_title }}</h3>
-        <p style="color:var(--text-muted);font-size:0.87rem;line-height:1.6;">{{ t.hiw_step2_desc }}</p>
+      <div class="hiw-card fade-up" style="animation-delay:100ms">
+        <div class="hiw-num">2</div>
+        <span class="hiw-icon">📲</span>
+        <h3>{{ t.hiw_step2_title }}</h3>
+        <p>{{ t.hiw_step2_desc }}</p>
       </div>
-      <div class="card" style="text-align:center;">
-        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.2rem;font-weight:800;color:white;box-shadow:var(--glow);">3</div>
-        <h3 style="margin-bottom:10px;font-size:1rem;">{{ t.hiw_step3_title }}</h3>
-        <p style="color:var(--text-muted);font-size:0.87rem;line-height:1.6;">{{ t.hiw_step3_desc }}</p>
+      <div class="hiw-card fade-up" style="animation-delay:200ms">
+        <div class="hiw-num">3</div>
+        <span class="hiw-icon">💸</span>
+        <h3>{{ t.hiw_step3_title }}</h3>
+        <p>{{ t.hiw_step3_desc }}</p>
       </div>
     </div>
   </div>
@@ -136,58 +792,141 @@
       <div class="section-tag">{{ t.feat_tag }}</div>
       <h2>{{ t.feat_title }} <span class="gradient-text">{{ t.feat_title_2 }}</span></h2>
     </div>
-    <div class="features-grid" style="margin-top:40px;">
-      <div class="feature-card"><div class="feature-icon">⚡</div><h3>{{ t.feat1_title }}</h3><p>{{ t.feat1_desc }}</p></div>
-      <div class="feature-card"><div class="feature-icon">🔒</div><h3>{{ t.feat2_title }}</h3><p>{{ t.feat2_desc }}</p></div>
-      <div class="feature-card"><div class="feature-icon">💱</div><h3>{{ t.feat3_title }}</h3><p>{{ t.feat3_desc }}</p></div>
-      <div class="feature-card"><div class="feature-icon">🎧</div><h3>{{ t.feat4_title }}</h3><p>{{ t.feat4_desc }}</p></div>
+    <div class="features-grid">
+      <div class="feature-card fade-up" style="animation-delay:0ms">
+        <div class="feature-icon">⚡</div>
+        <h3>{{ t.feat1_title }}</h3>
+        <p>{{ t.feat1_desc }}</p>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:80ms">
+        <div class="feature-icon">🔒</div>
+        <h3>{{ t.feat2_title }}</h3>
+        <p>{{ t.feat2_desc }}</p>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:160ms">
+        <div class="feature-icon">💱</div>
+        <h3>{{ t.feat3_title }}</h3>
+        <p>{{ t.feat3_desc }}</p>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:240ms">
+        <div class="feature-icon">🎧</div>
+        <h3>{{ t.feat4_title }}</h3>
+        <p>{{ t.feat4_desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TESTIMONIALS ═══════════════════ -->
+<section class="section" style="background:rgba(255,255,255,0.012);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">{{ t.testi_tag }}</div>
+      <h2>{{ t.testi_title }} <span class="gradient-text">{{ t.testi_title_2 }}</span></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card fade-up" style="animation-delay:0ms">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"{{ t.testi1_text }}"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#1a73e8,#0d47a1);">AM</div>
+          <div>
+            <div class="testi-name">{{ t.testi1_name }}</div>
+            <div class="testi-role">{{ t.testi1_role }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-up" style="animation-delay:100ms">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"{{ t.testi2_text }}"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#00897b,#004d40);">HF</div>
+          <div>
+            <div class="testi-name">{{ t.testi2_name }}</div>
+            <div class="testi-role">{{ t.testi2_role }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card fade-up" style="animation-delay:200ms">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"{{ t.testi3_text }}"</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">YA</div>
+          <div>
+            <div class="testi-name">{{ t.testi3_name }}</div>
+            <div class="testi-role">{{ t.testi3_role }}</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════════ MONEYGO ═══════════════════ -->
-<section class="section-sm" id="moneygo" style="background:rgba(255,255,255,0.015);border-top:1px solid var(--border);">
+<section class="section" id="moneygo">
   <div class="container">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
+    <div class="mg-grid">
       <div>
         <div class="section-tag">{{ t.mg_tag }}</div>
-        <h2 style="font-size:1.8rem;font-weight:800;margin:12px 0 16px;">{{ t.mg_title }} <span class="gradient-text">{{ t.mg_title_2 }}</span></h2>
-        <p style="color:var(--text-muted);line-height:1.7;margin-bottom:24px;">{{ t.mg_desc }}</p>
+        <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin:14px 0 18px;">
+          {{ t.mg_title }} <span class="gradient-text">{{ t.mg_title_2 }}</span>
+        </h2>
+        <p style="color:var(--text-muted);line-height:1.75;margin-bottom:28px;font-size:0.95rem;">{{ t.mg_desc }}</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 16px;font-size:0.85rem;">{{ t.mg_feat1 }}</div>
-          <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 16px;font-size:0.85rem;">{{ t.mg_feat2 }}</div>
+          <div class="mg-feat-chip">{{ t.mg_feat1 }}</div>
+          <div class="mg-feat-chip">{{ t.mg_feat2 }}</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:center;">
-        <div style="padding:24px;background:#0e1829;border-radius:20px;box-shadow:0 20px 60px rgba(214,51,132,0.2);border:1px solid rgba(255,255,255,0.08);">
-          <img src="{% static 'images/moneygo.png' %}" alt="MoneyGo" style="width:180px;height:auto;display:block;">
+      <div class="mg-visual">
+        <div class="mg-card">
+          <div class="mg-badge">● Live</div>
+          <img src="{% static 'images/moneygo.png' %}" alt="MoneyGo" style="width:160px;height:auto;display:block;margin:0 auto 20px;">
+          <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
+            Instant USD payout<br>to your MoneyGo wallet
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ═══════════════════ BOTTOM CTA ═══════════════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="section-tag" style="margin-bottom:20px;">DJIB Exchange</div>
+      <h2>{{ t.cta_title }}</h2>
+      <p>{{ t.cta_desc }}</p>
+      {% if user.is_authenticated and not user.is_staff %}
+        <a href="{% url 'user_new_request' %}" class="btn btn-primary btn-lg">{{ t.hero_btn_start }}</a>
+      {% else %}
+        <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg">{{ t.cta_btn }}</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════ FAQ ═══════════════════ -->
-<section class="section" id="faq">
+<section class="section" id="faq" style="padding-top:0;">
   <div class="container" style="max-width:720px;">
     <div class="section-header">
       <div class="section-tag">{{ t.faq_tag }}</div>
       <h2>{{ t.faq_title }} <span class="gradient-text">{{ t.faq_title_2 }}</span></h2>
     </div>
-    <div style="margin-top:36px;">
-      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin-bottom:12px;cursor:pointer;">
+    <div style="margin-top:0;">
+      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:10px;cursor:pointer;">
         <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">{{ t.faq1_q }}<span style="color:var(--primary);font-size:1.2rem;">+</span></summary>
         <p style="margin-top:14px;color:var(--text-muted);font-size:0.88rem;line-height:1.7;">{{ t.faq1_a|safe }}</p>
       </details>
-      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin-bottom:12px;cursor:pointer;">
+      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:10px;cursor:pointer;">
         <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">{{ t.faq2_q }}<span style="color:var(--primary);font-size:1.2rem;">+</span></summary>
         <p style="margin-top:14px;color:var(--text-muted);font-size:0.88rem;line-height:1.7;">{{ t.faq2_a }}</p>
       </details>
-      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin-bottom:12px;cursor:pointer;">
+      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:10px;cursor:pointer;">
         <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">{{ t.faq3_q }}<span style="color:var(--primary);font-size:1.2rem;">+</span></summary>
         <p style="margin-top:14px;color:var(--text-muted);font-size:0.88rem;line-height:1.7;">{{ t.faq3_a }}</p>
       </details>
-      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;cursor:pointer;">
+      <details style="background:var(--dark-card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;cursor:pointer;">
         <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">{{ t.faq4_q }}<span style="color:var(--primary);font-size:1.2rem;">+</span></summary>
         <p style="margin-top:14px;color:var(--text-muted);font-size:0.88rem;line-height:1.7;">{{ t.faq4_a }} <a href="{% url 'track_order' %}">{{ t.nav_track }}</a>.</p>
       </details>
@@ -195,4 +934,29 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Intersection Observer pour fade-up
+(function(){
+  var els = document.querySelectorAll('.fade-up');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.style.opacity=1; el.style.transform='none'; });
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.style.animationPlayState='running';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold:0.1 });
+  els.forEach(function(el){
+    el.style.animationPlayState='paused';
+    obs.observe(el);
+  });
+})();
+</script>
 {% endblock %}

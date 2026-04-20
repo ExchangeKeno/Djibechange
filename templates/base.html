@@ -41,10 +41,10 @@
       </form>
       <!-- Desktop auth buttons (hidden on mobile via JS) -->
       {% if user.is_authenticated and not user.is_staff %}
-        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">Mon compte</a>
+        <a href="{% url 'user_dashboard' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">{{ t.nav_account }}</a>
       {% elif not user.is_authenticated %}
-        <a href="{% url 'user_login' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">Connexion</a>
-        <a href="{% url 'user_register' %}" class="btn btn-primary btn-sm nav-desktop-btn" style="border-radius:50px;">S'inscrire</a>
+        <a href="{% url 'user_login' %}" class="btn btn-outline btn-sm nav-desktop-btn" style="border-radius:50px;">{{ t.nav_login }}</a>
+        <a href="{% url 'user_register' %}" class="btn btn-primary btn-sm nav-desktop-btn" style="border-radius:50px;">{{ t.nav_register }}</a>
       {% endif %}
       <!-- Hamburger -->
       <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
@@ -61,11 +61,11 @@
   <a href="{% url 'track_order' %}">{{ t.nav_track }}</a>
   <div class="divider-line"></div>
   {% if user.is_authenticated and not user.is_staff %}
-    <a href="{% url 'user_dashboard' %}" class="btn btn-outline">Mon compte</a>
-    <a href="{% url 'user_logout' %}" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">Se déconnecter</a>
+    <a href="{% url 'user_dashboard' %}" class="btn btn-outline">{{ t.nav_account }}</a>
+    <a href="{% url 'user_logout' %}" class="btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">{{ t.nav_logout }}</a>
   {% elif not user.is_authenticated %}
-    <a href="{% url 'user_login' %}" class="btn btn-outline">Connexion</a>
-    <a href="{% url 'user_register' %}" class="btn btn-primary">S'inscrire gratuitement</a>
+    <a href="{% url 'user_login' %}" class="btn btn-outline">{{ t.nav_login }}</a>
+    <a href="{% url 'user_register' %}" class="btn btn-primary">{{ t.nav_register_free }}</a>
   {% endif %}
 </div>
 

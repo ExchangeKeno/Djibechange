@@ -260,6 +260,51 @@ TRANSLATIONS = {
         'u_moneygo_label': 'MoneyGo Wallet ID',
         'u_moneygo_hint': 'Your MoneyGo ID (e.g. U123456789)',
         'u_submit_btn': 'Submit my request →',
+
+        # Navbar auth buttons
+        'nav_account': 'My account',
+        'nav_login': 'Sign in',
+        'nav_register': 'Sign up',
+        'nav_register_free': 'Sign up — free',
+        'nav_logout': 'Sign out',
+
+        # Home page — authenticated banner
+        'hero_btn_dashboard': 'My Dashboard',
+        'home_welcome': 'Hello',
+        'home_choose_wallet': 'Choose a wallet to make an exchange request.',
+        'home_my_space': 'My account →',
+        'wallet_exchange_via': 'Exchange via',
+        'home_create_free': 'Create a free account',
+        'home_to_submit': 'to submit an exchange request.',
+
+        # Stats bar
+        'stats_exchanges_val': '500+',
+        'stats_exchanges_lbl': 'Exchanges done',
+        'stats_wallets_val': '4',
+        'stats_wallets_lbl': 'Payment methods',
+        'stats_time_val': '~10 min',
+        'stats_time_lbl': 'Avg. processing',
+        'stats_avail_val': '24/7',
+        'stats_avail_lbl': 'Available',
+
+        # Testimonials
+        'testi_tag': 'Reviews',
+        'testi_title': 'They trust',
+        'testi_title_2': 'DJIB Exchange',
+        'testi1_text': 'Got my MoneyGo USD in under 5 minutes. Very smooth and transparent process. I highly recommend.',
+        'testi1_name': 'Ahmed M.',
+        'testi1_role': 'Djibouti City',
+        'testi2_text': 'Reliable, fast, and the team responds instantly. I use DJIB Exchange every week without any issues.',
+        'testi2_name': 'Hodan F.',
+        'testi2_role': 'Regular user',
+        'testi3_text': 'Best exchange service in Djibouti. Simple form, instant processing, no hidden fees.',
+        'testi3_name': 'Youssouf A.',
+        'testi3_role': 'Business owner',
+
+        # Bottom CTA
+        'cta_title': 'Ready to exchange?',
+        'cta_desc': 'Join hundreds of users who trust DJIB Exchange for fast and secure currency transfers to MoneyGo USD.',
+        'cta_btn': 'Start now — it\'s free',
     },
 
     'fr': {
@@ -523,5 +568,50 @@ TRANSLATIONS = {
         'u_moneygo_label': 'MoneyGo Wallet ID',
         'u_moneygo_hint': 'Votre identifiant MoneyGo (ex: U123456789)',
         'u_submit_btn': 'Soumettre ma demande →',
+
+        # Navbar auth buttons
+        'nav_account': 'Mon compte',
+        'nav_login': 'Connexion',
+        'nav_register': 'S\'inscrire',
+        'nav_register_free': 'S\'inscrire — gratuit',
+        'nav_logout': 'Se déconnecter',
+
+        # Home page — authenticated banner
+        'hero_btn_dashboard': 'Mon tableau de bord',
+        'home_welcome': 'Bonjour',
+        'home_choose_wallet': 'Choisissez un portefeuille pour faire une demande.',
+        'home_my_space': 'Mon espace →',
+        'wallet_exchange_via': 'Échanger via',
+        'home_create_free': 'Créez un compte gratuit',
+        'home_to_submit': 'pour soumettre une demande d\'échange.',
+
+        # Stats bar
+        'stats_exchanges_val': '500+',
+        'stats_exchanges_lbl': 'Échanges effectués',
+        'stats_wallets_val': '4',
+        'stats_wallets_lbl': 'Méthodes de paiement',
+        'stats_time_val': '~10 min',
+        'stats_time_lbl': 'Traitement moyen',
+        'stats_avail_val': '24/7',
+        'stats_avail_lbl': 'Disponible',
+
+        # Testimonials
+        'testi_tag': 'Avis clients',
+        'testi_title': 'Ils font confiance à',
+        'testi_title_2': 'DJIB Exchange',
+        'testi1_text': 'J\'ai reçu mes USD MoneyGo en moins de 5 minutes. Processus fluide et transparent. Je recommande vivement.',
+        'testi1_name': 'Ahmed M.',
+        'testi1_role': 'Djibouti City',
+        'testi2_text': 'Fiable, rapide, et l\'équipe répond instantanément. J\'utilise DJIB Exchange chaque semaine sans aucun problème.',
+        'testi2_name': 'Hodan F.',
+        'testi2_role': 'Utilisatrice régulière',
+        'testi3_text': 'Le meilleur service d\'échange à Djibouti. Formulaire simple, traitement instantané, sans frais cachés.',
+        'testi3_name': 'Youssouf A.',
+        'testi3_role': 'Chef d\'entreprise',
+
+        # Bottom CTA
+        'cta_title': 'Prêt à échanger ?',
+        'cta_desc': 'Rejoignez des centaines d\'utilisateurs qui font confiance à DJIB Exchange pour leurs transferts vers MoneyGo USD.',
+        'cta_btn': 'Commencer — c\'est gratuit',
     }
 }
